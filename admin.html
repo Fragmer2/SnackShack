@@ -1,0 +1,4851 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <title>Snack Shack - Admin Panel</title>
+        <link rel="icon" type="image/png" href="/uploads/favicon-16x16.png">
+        <style>
+
+/* ========================================
+   БАЗОВЫЕ СТИЛИ
+   ======================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #2c3e50;
+    --secondary: #3498db;
+    --success: #27ae60;
+    --warning: #f39c12;
+    --danger: #e74c3c;
+    --light: #ecf0f1;
+    --dark: #34495e;
+    --bonus: #9b59b6;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f6fa;
+    min-height: 100vh;
+}
+
+/* ========================================
+   LOGIN PAGE
+   ======================================== */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+}
+
+.login-box {
+    background: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    width: 400px;
+    max-width: 90%;
+}
+
+.login-box h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: var(--primary);
+}
+
+/* ========================================
+   DASHBOARD LAYOUT
+   ======================================== */
+.dashboard {
+    display: none;
+}
+
+.dashboard.active {
+    display: block;
+}
+
+/* SIDEBAR */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 250px;
+    height: 100vh;
+    background: var(--primary);
+    color: white;
+    padding: 20px;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.sidebar h1 {
+    margin-bottom: 30px;
+    font-size: 24px;
+}
+
+.sidebar-menu {
+    list-style: none;
+}
+
+.sidebar-menu li {
+    margin-bottom: 15px;
+}
+
+.sidebar-menu a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    padding: 12px;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+.sidebar-menu a:hover,
+.sidebar-menu a.active {
+    background: rgba(255,255,255,0.1);
+}
+
+/* MAIN CONTENT */
+.main-content {
+    margin-left: 250px;
+    padding: 20px;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+}
+
+.header {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* CONTENT SECTIONS */
+.content-section {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: none;
+    position: relative;
+    z-index: 1;
+}
+
+.content-section.active {
+    display: block;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-top: 10px;
+}
+
+/* ========================================
+   MOBILE MENU
+   ======================================== */
+.mobile-menu-toggle {
+    display: none;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 2001;
+    background: var(--primary);
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    color: white;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.mobile-menu-toggle:hover {
+    background: var(--dark);
+}
+
+.mobile-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1999;
+}
+
+/* ========================================
+   STATS CARDS
+   ======================================== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.stat-card.bonus-card {
+    background: linear-gradient(135deg, var(--bonus), #8e44ad);
+    color: white;
+}
+
+.stat-card h3 {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.stat-card.bonus-card h3 {
+    color: rgba(255,255,255,0.9);
+}
+
+.stat-card .value {
+    font-size: 32px;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.stat-card.bonus-card .value {
+    color: white;
+}
+
+/* ========================================
+   PAYMENT INDICATORS
+   ======================================== */
+.payment-status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-left: 5px;
+}
+
+.payment-completed { background: #27ae60; color: white; }
+.payment-pending { background: #f39c12; color: white; }
+.payment-failed { background: #e74c3c; color: white; }
+.payment-refunded { background: #95a5a6; color: white; }
+
+.payment-method {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-left: 5px;
+}
+
+.method-card { background: #3498db; color: white; }
+.method-cash { background: #34495e; color: white; }
+.method-cod { background: #e67e22; color: white; }
+.method-bonus { background: #9b59b6; color: white; }
+
+.online-payment-badge {
+    background: #2ecc71;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+.card-info {
+    font-size: 11px;
+    color: #666;
+    font-style: italic;
+}
+
+/* ========================================
+   SETTINGS SECTIONS
+   ======================================== */
+.square-settings,
+.bonus-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+.square-settings {
+    border-left: 4px solid #3498db;
+}
+
+.bonus-section {
+    border-left: 4px solid var(--bonus);
+}
+
+.square-toggle,
+.bonus-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.square-toggle input[type="checkbox"],
+.bonus-toggle input[type="checkbox"] {
+    width: auto;
+    transform: scale(1.2);
+}
+
+.bonus-controls {
+    display: none;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.bonus-controls.active {
+    display: grid;
+}
+
+/* ========================================
+   TABLES
+   ======================================== */
+.table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 1;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background: var(--light);
+    font-weight: 600;
+}
+
+/* ========================================
+   FORMS
+   ======================================== */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-row.three-col {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+/* ========================================
+   IMAGE UPLOAD
+   ======================================== */
+.image-upload-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+.upload-options {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.upload-option {
+    flex: 1;
+}
+
+.upload-option input[type="radio"] {
+    margin-right: 8px;
+}
+
+.file-upload {
+    border: 2px dashed #ddd;
+    padding: 20px;
+    text-align: center;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+.file-upload:hover {
+    border-color: var(--primary);
+}
+
+.file-upload.dragover {
+    border-color: var(--primary);
+    background: #f0f8ff;
+}
+
+.image-preview {
+    max-width: 200px;
+    max-height: 150px;
+    margin: 10px 0;
+    border-radius: 5px;
+}
+
+/* ========================================
+   USER MANAGEMENT
+   ======================================== */
+.user-card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.user-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.user-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+    margin: 15px 0;
+}
+
+.user-stat {
+    text-align: center;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 5px;
+}
+
+.bonus-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.bonus-input {
+    width: 120px;
+}
+
+/* ========================================
+   BUTTONS
+   ======================================== */
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary { background: var(--secondary); color: white; }
+.btn-success { background: var(--success); color: white; }
+.btn-warning { background: var(--warning); color: white; }
+.btn-danger { background: var(--danger); color: white; }
+.btn-bonus { background: var(--bonus); color: white; }
+
+.btn:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ========================================
+   STATUS BADGES
+   ======================================== */
+.status {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+/* Order Status */
+.status-pending { background: #f39c12; color: white; }
+.status-accepted { background: #3498db; color: white; }
+.status-preparing { background: #9b59b6; color: white; }
+.status-delivering { background: #e67e22; color: white; }
+.status-completed { background: #27ae60; color: white; }
+.status-cancelled { background: #e74c3c; color: white; }
+
+/* Ticket Status */
+.status-open { background: #3498db; color: white; }
+.status-in_progress { background: #f39c12; color: white; }
+.status-resolved { background: #27ae60; color: white; }
+.status-closed { background: #95a5a6; color: white; }
+
+/* Priority */
+.status-low { background: #95a5a6; color: white; }
+.status-medium { background: #f39c12; color: white; }
+.status-high { background: #e67e22; color: white; }
+.status-critical { background: #e74c3c; color: white; }
+
+/* ========================================
+   ORDER & COUPON TYPES
+   ======================================== */
+.order-type,
+.coupon-type {
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-block;
+    margin-left: 10px;
+}
+
+/* Order Types */
+.order-bonus { background: var(--bonus); color: white; }
+.order-coupon { background: var(--success); color: white; }
+.order-regular { background: #95a5a6; color: white; }
+
+/* Ticket Types */
+.order-error { background: #e74c3c; color: white; }
+.order-bug { background: #e67e22; color: white; }
+.order-question { background: #3498db; color: white; }
+.order-feature { background: #2ecc71; color: white; }
+.order-other { background: #95a5a6; color: white; }
+
+/* Coupon Types */
+.type-discount_percent { background: #3498db; color: white; }
+.type-discount_fixed { background: #2ecc71; color: white; }
+.type-free_delivery { background: #f39c12; color: white; }
+.type-free_item { background: #e74c3c; color: white; }
+
+/* ========================================
+   MODALS
+   ======================================== */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.close-modal {
+    float: right;
+    font-size: 30px;
+    cursor: pointer;
+    color: #999;
+}
+
+.close-modal:hover {
+    color: #333;
+}
+
+/* Error Modal */
+.error-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.error-modal-overlay.show {
+    opacity: 1;
+}
+
+.error-modal {
+    background: white;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.error-modal-header {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.error-modal-header h3 {
+    margin: 0;
+    color: #e74c3c;
+}
+
+.error-modal-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #999;
+    line-height: 1;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+}
+
+.error-modal-close:hover {
+    color: #333;
+}
+
+.error-modal-body {
+    padding: 20px;
+}
+
+.error-details-preview {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 6px;
+    margin: 15px 0;
+    font-size: 13px;
+    color: #666;
+    border-left: 3px solid #e74c3c;
+}
+
+.error-modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* ========================================
+   LOADING & NOTIFICATIONS
+   ======================================== */
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 5px;
+    color: white;
+    font-weight: 600;
+    z-index: 2000;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.notification.success { background: var(--success); }
+.notification.error { background: var(--danger); }
+.notification.warning { background: var(--warning); }
+.notification.bonus { background: var(--bonus); }
+
+/* ========================================
+   VARIATIONS
+   ======================================== */
+.variations-section {
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+    border: 2px solid rgba(52, 152, 219, 0.3);
+}
+
+.variation-item {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    display: grid;
+    grid-template-columns: 2fr 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+}
+
+.variation-item input[type="text"],
+.variation-item input[type="number"] {
+    padding: 8px;
+}
+
+.variation-item .btn {
+    padding: 8px 12px;
+}
+
+/* ========================================
+   SUPPORT BUTTON
+   ======================================== */
+.support-btn-float {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 9999;
+    transition: all 0.3s;
+}
+
+.support-btn-float:hover {
+    background: #2980b9;
+    transform: scale(1.1);
+}
+
+/* ========================================
+   MOBILE RESPONSIVE (max-width: 768px)
+   ======================================== */
+@media (max-width: 768px) {
+    /* Show mobile menu button */
+    .mobile-menu-toggle {
+        display: block;
+    }
+    
+    /* Sidebar hidden by default on mobile */
+    .sidebar {
+        left: -250px;
+        padding: 60px 20px 20px;
+        transition: left 0.3s ease;
+        z-index: 2000;
+    }
+    
+    .sidebar.mobile-open {
+        left: 0;
+    }
+    
+    .mobile-overlay.active {
+        display: block;
+    }
+    
+    /* Main content adjustments */
+    .main-content {
+        margin-left: 0;
+        padding: 60px 15px 15px;
+    }
+    
+    /* Header */
+    .header {
+        padding: 15px;
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+    
+    .header h2 {
+        text-align: center;
+        font-size: 20px;
+    }
+    
+    /* Stats grid */
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .stat-card {
+        padding: 20px 15px;
+        text-align: center;
+    }
+    
+    .stat-card .value {
+        font-size: 28px;
+    }
+    
+    /* Forms */
+    .form-row,
+    .form-row.three-col {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    /* Tables */
+    table {
+        min-width: 700px;
+        font-size: 13px;
+    }
+    
+    th, td {
+        padding: 8px 6px;
+        white-space: nowrap;
+    }
+    
+    /* Buttons */
+    .btn {
+        padding: 8px 12px;
+        font-size: 12px;
+        margin: 2px;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Modals */
+    .modal-content {
+        padding: 20px 15px;
+        margin: 20px 15px;
+        max-width: none;
+        width: auto;
+        max-height: 85vh;
+    }
+    
+    .close-modal {
+        position: sticky;
+        top: 0;
+        right: 0;
+        background: white;
+        padding: 10px;
+        margin: -20px -15px 10px auto;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    /* Section headers */
+    .section-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+    
+    /* User management */
+    .user-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    .user-stat {
+        padding: 8px;
+        font-size: 12px;
+    }
+    
+    .bonus-actions {
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+    }
+    
+    .bonus-input {
+        width: 100%;
+    }
+    
+    /* Login page */
+    .login-box {
+        width: 90%;
+        max-width: 400px;
+        padding: 30px 20px;
+        margin: 20px;
+    }
+    
+    /* Image upload */
+    .upload-options {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .file-upload {
+        padding: 30px 15px;
+    }
+    
+    /* Payment badges */
+    .payment-status,
+    .payment-method,
+    .online-payment-badge {
+        display: block;
+        margin: 2px 0;
+        text-align: center;
+    }
+    
+    /* Notifications */
+    .notification {
+        right: 15px;
+        left: 15px;
+        max-width: none;
+    }
+    
+    /* Search & Filter */
+    #orderNumberSearch,
+    #userSearch {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    #statusFilter,
+    #typeFilter {
+        width: 48%;
+        display: inline-block;
+        margin-right: 4%;
+    }
+    
+    #typeFilter {
+        margin-right: 0;
+    }
+}
+
+/* ========================================
+   VERY SMALL SCREENS (max-width: 480px)
+   ======================================== */
+@media (max-width: 480px) {
+    .main-content {
+        padding: 60px 10px 10px;
+    }
+    
+    .stat-card {
+        padding: 15px 10px;
+    }
+    
+    .stat-card .value {
+        font-size: 24px;
+    }
+    
+    table {
+        font-size: 11px;
+    }
+    
+    th, td {
+        padding: 6px 4px;
+    }
+    
+    .btn {
+        padding: 6px 8px;
+        font-size: 11px;
+        min-height: 40px;
+    }
+    
+    .user-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-content {
+        padding: 15px 10px;
+        margin: 10px;
+    }
+    
+    .login-box {
+        padding: 25px 15px;
+    }
+    
+    #statusFilter,
+    #typeFilter {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+}
+
+/* ========================================
+   LANDSCAPE ORIENTATION
+   ======================================== */
+@media (max-width: 768px) and (orientation: landscape) {
+    .modal-content {
+        max-height: 90vh;
+    }
+    
+    .main-content {
+        padding-top: 50px;
+    }
+}
+
+/* ========================================
+   TOUCH DEVICES
+   ======================================== */
+@media (hover: none) and (pointer: coarse) {
+    .btn:hover {
+        transform: none;
+    }
+    
+    .btn:active {
+        transform: scale(0.95);
+    }
+    
+    .sidebar-menu a:hover {
+        background: rgba(255,255,255,0.1);
+    }
+    
+    .sidebar-menu a:active {
+        background: rgba(255,255,255,0.2);
+    }
+}
+        </style>
+    </head>
+
+<body>
+    <!-- Mobile Menu Toggle Button -->
+    <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰</button>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" onclick="closeMobileSidebar()"></div>
+
+    <!-- Login Page -->
+    <div class="login-container" id="loginPage">
+        <div class="login-box">
+            <h2>Staff Login</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="staffEmail" name="staffEmail" autocomplete="email" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="staffPassword" name="staffPassword" autocomplete="current-password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <span id="loginButtonText">Login</span>
+                    <span class="spinner" style="display:none;" id="loginSpinner"></span>
+                </button>
+            </form>
+            <p style="text-align: center; margin-top: 20px; font-size: 10px; color: #666;">
+                Snack Shack Admin Panel
+            </p>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard" id="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h1>Snack Shack Staff Menu</h1>
+            <ul class="sidebar-menu">
+                <li><a href="#" class="active" onclick="showSection('overview')">📊 Overview</a></li>
+                <li><a href="#" onclick="showSection('reviews')">📝 Reviews</a></li>
+                <li><a href="#" onclick="showSection('orders')">📦 Orders</a></li>
+                <li><a href="#" onclick="showSection('support')">🎫 Support</a></li>
+                <li><a href="#" onclick="showSection('products')">🍔 Products</a></li>
+                <li><a href="#" onclick="showSection('coupons')">🎟️ Coupons</a></li>
+                <li><a href="#" onclick="showSection('deals')">🎁 Special Deals</a></li>
+                <li><a href="#" onclick="showSection('users')">👥 Users</a></li>
+                <li><a href="#" onclick="showSection('stats')">📈 Statistics</a></li>
+                <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h2>Admin Dashboard</h2>
+                <div>
+                    <span id="staffName">Admin</span>
+                    <button class="btn btn-primary" onclick="refreshData()">🔄 Refresh</button>
+                </div>
+            </div>
+
+            <!-- Overview Section -->
+            <div class="content-section active" id="overview">
+                <h3>Dashboard Overview</h3>
+                
+                <!-- Delivery Settings -->
+                <div class="stat-card">
+                    <h3>Delivery</h3>
+                    <label style="display:flex;align-items:center;gap:8px;">
+                        <input type="checkbox" id="toggleDelivery">
+                        <span id="deliveryStatusText">Enabled</span>
+                    </label>
+                </div>
+
+                <!-- Payment Settings -->
+                <div class="square-settings">
+                    <h4>💳 Payment Settings</h4>
+                    <div class="square-toggle">
+                        <input type="checkbox" id="squareToggle">
+                        <label for="squareToggle">Enable Card Payments (Square)</label>
+                    </div>
+                    <div class="square-toggle">
+                        <input type="checkbox" id="disableOnlineToggle">
+                        <label for="disableOnlineToggle">Disable All Online Payments</label>
+                    </div>
+                    <div style="margin-top: 10px; padding: 10px; background: #e8f4f8; border-radius: 5px; font-size: 12px; color: #2c3e50;">
+                        <strong>Note:</strong> When card payments are disabled, customers will only see cash/delivery payment options.
+                    </div>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Orders</h3>
+                        <div class="value" id="totalOrders">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Today's Orders</h3>
+                        <div class="value" id="todayOrders">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Revenue</h3>
+                        <div class="value">$<span id="totalRevenue">0</span></div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Online Payments</h3>
+                        <div class="value" id="onlinePayments">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Cash Payments</h3>
+                        <div class="value" id="cashPayments">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Active Orders</h3>
+                        <div class="value" id="activeOrders">0</div>
+                    </div>
+                    <div class="stat-card bonus-card">
+                        <h3>Bonus Orders</h3>
+                        <div class="value" id="bonusOrders">0</div>
+                    </div>
+                    <div class="stat-card bonus-card">
+                        <h3>Bonus Points Used</h3>
+                        <div class="value" id="bonusPointsUsed">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Active Deals</h3>
+                        <div class="value" id="activeDeals">0</div>
+                    </div>
+                </div>
+
+                <!-- Recent Orders -->
+                <h3 style="margin-top: 30px;">Recent Orders</h3>
+                <div class="table-wrapper">
+                    <table id="recentOrdersTable">
+                        <thead>
+                            <tr>
+                                <th>Order #</th>
+                                <th>Customer</th>
+                                <th>Type</th>
+                                <th>Payment</th>
+                                <th>Location</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Orders Section -->
+            <div class="content-section" id="orders">
+                <h3>All Orders</h3>
+                <div style="margin-bottom: 20px;">
+                    <select id="statusFilter" onchange="filterOrders()">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="accepted">Accepted</option>
+                        <option value="preparing">Preparing</option>
+                        <option value="delivering">Delivering</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                    <div style="margin-bottom: 10px;">
+                        <input type="text" id="orderNumberSearch" placeholder="Search by order number" oninput="filterOrders()" style="width: 250px; padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                    </div>
+                    <select id="typeFilter" onchange="filterOrders()" style="margin-left: 10px;">
+                        <option value="">All Types</option>
+                        <option value="bonus">Bonus Orders</option>
+                        <option value="coupon">Coupon Orders</option>
+                        <option value="regular">Regular Orders</option>
+                    </select>
+                </div>
+                <div class="table-wrapper">
+                    <table id="ordersTable">
+                        <thead>
+                            <tr>
+                                <th>Order #</th>
+                                <th>Customer</th>
+                                <th>Phone</th>
+                                <th>Type</th>
+                                <th>Payment</th>
+                                <th>Location</th>
+                                <th>Items</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Time</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Products Section -->
+            <div class="content-section" id="products">
+                <div class="section-header">
+                    <h3>Products Management</h3>
+                    <button class="btn btn-success" onclick="showAddProduct()">+ Add Product</button>
+                </div>
+                <div class="table-wrapper">
+                    <table id="productsTable">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Price</th>
+                                <th>Category</th>
+                                <th>Available</th>
+                                <th>Bonus</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Coupons Section -->
+            <div class="content-section" id="coupons">
+                <div class="section-header">
+                    <h3>Coupon Management</h3>
+                    <button class="btn btn-success" onclick="showAddCoupon()">+ Add Coupon</button>
+                </div>
+                <div class="table-wrapper">
+                    <table id="couponsTable">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Type</th>
+                                <th>Value</th>
+                                <th>Usage</th>
+                                <th>Status</th>
+                                <th>Expires</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Special Deals Section -->
+            <div class="content-section" id="deals">
+                <div class="section-header">
+                    <h3>Special Deals Management</h3>
+                    <div>
+                        <button class="btn btn-secondary" onclick="loadDeals()" style="margin-right: 10px;">🔄 Refresh</button>
+                        <button class="btn btn-success" onclick="showAddDeal()">+ Add Deal</button>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table id="dealsTable">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Products</th>   
+                                <th>Original Price</th>
+                                <th>Deal Price</th>
+                                <th>Savings</th>
+                                <th>Status</th>
+                                <th>Redeemed</th>
+                                <th>Start/End Dates</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+<!-- В секцию Users добавьте новую вкладку -->
+<div class="content-section" id="users">
+    <div class="section-header">
+        <h3>User Management - Bonus Points System</h3>
+        <div>
+            <input type="search" id="userSearch" placeholder="Search users..." style="width: 250px; margin-right: 10px;" oninput="searchUsers()">
+            <button class="btn btn-bonus" onclick="showBulkBonus()">🎁 Bulk Bonus</button>
+            <!-- ✅ ДОБАВИТЬ ЭТУ КНОПКУ -->
+            <button class="btn btn-primary" onclick="showDeliveryAccessModal()">🚚 Manage Delivery Access</button>
+        </div>
+    </div>
+    <div id="usersList">
+        <div class="loading">Loading users...</div>
+    </div>
+</div>
+
+<!-- ✅ ДОБАВИТЬ НОВЫЙ МОДАЛ -->
+<!-- Delivery Access Modal -->
+<div class="modal" id="deliveryAccessModal">
+    <div class="modal-content" style="max-width: 900px;">
+        <span class="close-modal" onclick="closeDeliveryAccessModal()">&times;</span>
+        <h2>🚚 Manage Individual Delivery Access</h2>
+        
+        <div style="margin-bottom: 20px; padding: 15px; background: #e3f2fd; border-radius: 8px;">
+            <p style="margin: 0; color: #1976d2;">
+                <strong>Note:</strong> Users selected here will have delivery access even when global delivery is disabled.
+            </p>
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            <input type="search" id="deliveryUserSearch" placeholder="Search users..." 
+                   style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd;"
+                   oninput="searchDeliveryUsers()">
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <button class="btn btn-success" onclick="bulkEnableDelivery()">
+                Enable for Selected (<span id="selectedDeliveryCount">0</span>)
+            </button>
+            <button class="btn btn-secondary" onclick="selectAllDeliveryUsers()">Select All</button>
+            <button class="btn btn-secondary" onclick="deselectAllDeliveryUsers()">Deselect All</button>
+        </div>
+        
+        <div id="deliveryUsersList" style="max-height: 500px; overflow-y: auto;">
+            <div class="loading">Loading users...</div>
+        </div>
+    </div>
+</div>
+
+            <!-- Support Tickets Section -->
+            <div class="content-section" id="support">
+                <div class="section-header">
+                    <h3>Support Tickets</h3>
+                    <div>
+                        <select id="ticketStatusFilter" onchange="filterTickets()">
+                            <option value="all">All Status</option>
+                            <option value="open">Open</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="resolved">Resolved</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                        <select id="ticketTypeFilter" onchange="filterTickets()" style="margin-left:10px;">
+                            <option value="all">All Types</option>
+                            <option value="error">Errors</option>
+                            <option value="bug">Bugs</option>
+                            <option value="question">Questions</option>
+                            <option value="feature">Features</option>
+                        </select>
+                        <input type="search" id="ticketSearch" placeholder="Search tickets..." style="margin-left:10px;width:200px;" oninput="filterTickets()">
+                    </div>
+                </div>
+                
+                <div class="stats-grid" style="margin-bottom:20px;">
+                    <div class="stat-card">
+                        <h3>Open Tickets</h3>
+                        <div class="value" id="openTickets">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>In Progress</h3>
+                        <div class="value" id="inProgressTickets">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Resolved Today</h3>
+                        <div class="value" id="resolvedToday">0</div>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table id="ticketsTable">
+                        <thead>
+                            <tr>
+                                <th>Ticket #</th>
+                                <th>User</th>
+                                <th>Type</th>
+                                <th>Priority</th>
+                                <th>Subject</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div class="content-section" id="reviews">
+                <div class="section-header">
+                    <h3>Reviews Management</h3>
+                    <div>
+                        <input type="search" id="reviewSearch" placeholder="Search reviews..." style="width: 250px; margin-right: 10px;" oninput="searchReviews()">
+                        <select id="reviewFilter" onchange="filterReviews()" style="margin-right: 10px;">
+                            <option value="all">All Reviews</option>
+                            <option value="verified">Verified Only</option>
+                            <option value="unverified">Unverified</option>
+                            <option value="5">5 Stars</option>
+                            <option value="4">4 Stars</option>
+                            <option value="3">3 Stars</option>
+                            <option value="2">2 Stars</option>
+                            <option value="1">1 Star</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="reviewsStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <div class="stat-card">
+                        <h3>Total Reviews</h3>
+                        <div class="value" id="totalReviews">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Average Rating</h3>
+                        <div class="value" id="avgRating">0.0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Verified Reviews</h3>
+                        <div class="value" id="verifiedReviews">0</div>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table id="reviewsTable">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Customer</th>
+                                <th>Rating</th>
+                                <th>Comment</th>
+                                <th>Verified</th>
+                                <th>Helpful</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Statistics Section -->
+            <div class="content-section" id="stats">
+                <h3>Sales Statistics</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>This Week</h3>
+                        <div class="value">$<span id="weekRevenue">0</span></div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>This Month</h3>
+                        <div class="value">$<span id="monthRevenue">0</span></div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Average Order</h3>
+                        <div class="value">$<span id="avgOrder">0</span></div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Customers</h3>
+                        <div class="value" id="totalCustomers">0</div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px;">Popular Products</h3>
+                <div class="table-wrapper">
+                    <table id="popularProductsTable">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Orders</th>
+                                <th>Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div> <!-- /.main-content -->
+    </div> <!-- /.dashboard -->
+
+    <!-- MODALS -->
+    
+    <!-- Product Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2 id="productModalTitle">Add Product</h2>
+            <form id="productForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Product Name</label>
+                        <input type="text" id="productName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Price ($)</label>
+                        <input type="number" step="0.01" id="productPrice" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="productCategory" required>
+                            <option value="burgers">Burgers</option>
+                            <option value="pizza">Pizza</option>
+                            <option value="salads">Salads</option>
+                            <option value="sides">Sides</option>
+                            <option value="drinks">Drinks</option>
+                            <option value="desserts">Desserts</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Available</label>
+                        <select id="productAvailable">
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="productDescription" rows="3" required></textarea>
+                </div>
+
+                <!-- Bonus Section -->
+                <div class="bonus-section">
+                    <h4>⭐ Bonus Settings</h4>
+                    <div class="bonus-toggle">
+                        <input type="checkbox" id="enableBonus" onchange="toggleBonusControls()">
+                        <label for="enableBonus">Enable bonus pricing for this product</label>
+                    </div>
+                    
+                    <div class="bonus-controls" id="bonusControls">
+                        <div class="form-group">
+                            <label>Bonus Points Required</label>
+                            <input type="number" id="bonusPointsRequired" min="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Discount Percentage</label>
+                            <input type="number" id="discountPercent" min="0" max="100" value="0">
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <div class="bonus-toggle">
+                                <input type="checkbox" id="allowFullBonus">
+                                <label for="allowFullBonus">Allow full payment with bonus points (20 points = $1)</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Discount Section -->
+                <div class="bonus-section" style="background: linear-gradient(135deg, #e74c3c, #c0392b); color: white;">
+                    <h4 style="color: white;">💰 Discount Settings</h4>
+                    <div class="bonus-toggle">
+                        <input type="checkbox" id="enableDiscount" onchange="toggleDiscountControls()">
+                        <label for="enableDiscount" style="color: white;">Enable discount for this product</label>
+                    </div>
+                    
+                    <div class="bonus-controls" id="discountControls" style="display: none;">
+                        <div class="form-group">
+                            <label style="color: white;">Discount Percentage (%)</label>
+                            <input type="number" id="discountPercentage" min="0" max="100" value="0" oninput="calculateDiscountPrice()">
+                        </div>
+                        <div class="form-group">
+                            <label style="color: white;">Original Price (auto-filled)</label>
+                            <input type="number" id="originalPrice" step="0.01" readonly style="background: rgba(255,255,255,0.2); color: white;">
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <div id="finalPricePreview" style="display: none; background: rgba(255,255,255,0.2); padding: 10px; border-radius: 5px; text-align: center; font-weight: bold;">
+                                Final price after discount: $0.00
+                            </div>
+                            <p style="color: white; font-size: 14px; margin-top: 10px;">
+                                ℹ️ Current price above will be saved as the FINAL price after discount
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Variations Section -->
+                <div class="variations-section">
+                    <h4>🎨 Product Variations</h4>
+                    <div class="bonus-toggle">
+                        <input type="checkbox" id="enableVariations" onchange="toggleVariationsControls()">
+                        <label for="enableVariations">Enable variations for this product (e.g., flavors, sizes)</label>
+                    </div>
+                    
+                    <div class="variations-controls" id="variationsControls" style="display: none; margin-top: 15px;">
+                        <div id="variationsList"></div>
+                        
+                        <button type="button" class="btn btn-success" onclick="addVariation()" style="margin-top: 10px;">
+                            + Add Variation
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Image Upload Section -->
+                <div class="image-upload-section">
+                    <h4>Product Image</h4>
+                    <div class="upload-options">
+                        <div class="upload-option">
+                            <input type="radio" id="uploadUrl" name="imageMethod" value="url" checked>
+                            <label for="uploadUrl">Image URL</label>
+                        </div>
+                        <div class="upload-option">
+                            <input type="radio" id="uploadFile" name="imageMethod" value="file">
+                            <label for="uploadFile">Upload File</label>
+                        </div>
+                    </div>
+
+                    <div id="urlUpload">
+                        <div class="form-group">
+                            <input type="text" id="productImageUrl" placeholder="Enter image URL">
+                        </div>
+                    </div>
+
+                    <div id="fileUpload" style="display: none;">
+                        <div class="file-upload" onclick="document.getElementById('imageFile').click()">
+                            <input type="file" id="imageFile" accept="image/*" style="display: none;" onchange="handleImageUpload(this)">
+                            <div>Click to upload image or drag and drop</div>
+                            <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                                Supported formats: JPG, PNG, GIF, WEBP (Max 5MB)
+                            </div>
+                        </div>
+                        <div id="uploadProgress" style="display: none; margin-top: 10px;">
+                            <div style="background: #f0f0f0; border-radius: 10px; height: 10px;">
+                                <div id="progressBar" style="background: var(--success); height: 100%; border-radius: 10px; width: 0%; transition: width 0.3s;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="imagePreview" style="display: none; margin-top: 10px;">
+                        <img id="previewImage" class="image-preview" alt="Preview">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 20px;">
+                    <span id="productSubmitText">Save Product</span>
+                    <span class="spinner" style="display:none;" id="productSubmitSpinner"></span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Coupon Modal -->
+    <div class="modal" id="couponModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeCouponModal()">&times;</span>
+            <h2 id="couponModalTitle">Add Coupon</h2>
+            <form id="couponForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Coupon Code</label>
+                        <input type="text" id="couponCode" required style="text-transform: uppercase;" placeholder="SAVE10">
+                    </div>
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select id="couponType" onchange="toggleCouponFields()" required>
+                            <option value="discount_percent">Percentage Discount</option>
+                            <option value="discount_fixed">Fixed Amount Discount</option>
+                            <option value="free_delivery">Free Delivery</option>
+                            <option value="free_item">Free Item</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label id="valueLabel">Discount (%)</label>
+                        <input type="number" step="0.01" id="couponValue" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Minimum Order ($)</label>
+                        <input type="number" step="0.01" id="couponMinOrder" value="0">
+                    </div>
+                </div>
+
+                <div class="form-group" id="freeItemSection" style="display: none;">
+                    <label>Free Item</label>
+                    <select id="couponFreeItem">
+                        <option value="">Select a product</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Maximum Uses</label>
+                        <input type="number" id="couponMaxUses" value="1" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Expires On</label>
+                        <input type="date" id="couponExpires">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="couponActive" checked style="width: auto; margin-right: 10px;">
+                        Active
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 20px;">
+                    <span id="couponSubmitText">Save Coupon</span>
+                    <span class="spinner" style="display:none;" id="couponSubmitSpinner"></span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div class="modal" id="orderModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeOrderModal()">&times;</span>
+            <h2>Order Details</h2>
+            <div id="orderDetails"></div>
+            <div style="margin-top: 20px;">
+                <label>Update Status:</label>
+                <select id="orderStatus">
+                    <option value="pending">Pending</option>
+                    <option value="accepted">Accepted</option>
+                    <option value="preparing">Preparing</option>
+                    <option value="delivering">Delivering</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+                <button class="btn btn-primary" onclick="updateOrderStatus()">
+                    <span id="statusUpdateText">Update Status</span>
+                    <span class="spinner" style="display:none;" id="statusUpdateSpinner"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ticket Details Modal -->
+    <div class="modal" id="ticketModal">
+        <div class="modal-content" style="max-width:800px;">
+            <span class="close-modal" onclick="closeTicketModal()">×</span>
+            <h2 id="ticketModalTitle">Ticket Details</h2>
+            <div id="ticketDetails"></div>
+        </div>
+    </div>
+
+    <!-- Bulk Bonus Modal -->
+    <div class="modal" id="bulkBonusModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeBulkBonusModal()">&times;</span>
+            <h2>🎁 Bulk Bonus Points</h2>
+            <form id="bulkBonusForm">
+                <div class="form-group">
+                    <label>Select Users</label>
+                    <select id="bulkUserType">
+                        <option value="all">All Users</option>
+                        <option value="bronze">Bronze Members</option>
+                        <option value="silver">Silver Members</option>
+                        <option value="gold">Gold Members</option>
+                        <option value="platinum">Platinum Members</option>
+                        <option value="active">Active This Month</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Bonus Points to Add</label>
+                        <input type="number" id="bulkBonusAmount" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Reason</label>
+                        <input type="text" id="bulkBonusReason" placeholder="Holiday bonus" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-bonus" style="width: 100%; margin-top: 20px;">
+                    <span id="bulkBonusText">Add Bonus Points</span>
+                    <span class="spinner" style="display:none;" id="bulkBonusSpinner"></span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Deal Modal -->
+    <div class="modal" id="dealModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <span class="close-modal" onclick="closeDealModal()">&times;</span>
+            <h2 id="dealModalTitle">Add Special Deal</h2>
+            <form id="dealForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Deal Name</label>
+                        <input type="text" id="dealName" required placeholder="e.g., Lunch Combo">
+                    </div>
+                    <div class="form-group">
+                        <label>Deal Price ($)</label>
+                        <input type="number" step="0.01" id="dealPrice" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="dealDescription" rows="2" placeholder="Brief description of the deal"></textarea>
+                </div>
+
+                <!-- Products Selection -->
+                <div class="form-group">
+                    <label>Select Products</label>
+                    <div id="dealProductsList" style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; padding: 10px;">
+                        <!-- Products will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Selected Products Display -->
+                <div class="form-group">
+                    <label>Selected Products</label>
+                    <div id="selectedDealProducts" style="min-height: 50px; border: 2px dashed #ddd; border-radius: 8px; padding: 10px;">
+                        <p style="color: #999; text-align: center;">No products selected</p>
+                    </div>
+                    <div id="dealPriceCalculation" style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 8px; display: none;">
+                        <div style="display: flex; justify-content: space-between; margin: 5px 0;">
+                            <span>Original Price:</span>
+                            <span id="dealOriginalPrice">$0.00</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin: 5px 0;">
+                            <span>Deal Price:</span>
+                            <span id="dealPriceDisplay">$0.00</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin: 5px 0; font-weight: bold; color: #27ae60;">
+                            <span>You Save:</span>
+                            <span id="dealSavings">$0.00 (0%)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advanced Options -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start Date (Optional)</label>
+                        <input type="date" id="dealStartDate">
+                    </div>
+                    <div class="form-group">
+                        <label>End Date (Optional)</label>
+                        <input type="date" id="dealEndDate">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Max Redemptions (0 = unlimited)</label>
+                    <input type="number" id="dealMaxRedemptions" value="0" min="0">
+                </div>
+
+                <!-- Image Upload -->
+                <div class="image-upload-section">
+                    <h4>Deal Image (Optional)</h4>
+                    <div class="upload-options">
+                        <div class="upload-option">
+                            <input type="radio" id="dealUploadUrl" name="dealImageMethod" value="url" checked>
+                            <label for="dealUploadUrl">Image URL</label>
+                        </div>
+                        <div class="upload-option">
+                            <input type="radio" id="dealUploadFile" name="dealImageMethod" value="file">
+                            <label for="dealUploadFile">Upload File</label>
+                        </div>
+                    </div>
+
+                    <div id="dealUrlUpload">
+                        <div class="form-group">
+                            <input type="text" id="dealImageUrl" placeholder="Enter image URL">
+                        </div>
+                    </div>
+
+                    <div id="dealFileUpload" style="display: none;">
+                        <div class="file-upload" onclick="document.getElementById('dealImageFile').click()">
+                            <input type="file" id="dealImageFile" accept="image/*" style="display: none;" onchange="handleDealImageUpload(this)">
+                            <div>Click to upload image or drag and drop</div>
+                        </div>
+                    </div>
+
+                    <div id="dealImagePreview" style="display: none; margin-top: 10px;">
+                        <img id="dealPreviewImage" class="image-preview" alt="Preview">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 20px;">
+                    <span id="dealSubmitText">Save Deal</span>
+                    <span class="spinner" style="display:none;" id="dealSubmitSpinner"></span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notifications Container -->
+    <div id="notifications"></div>
+
+
+        <script>
+
+            // ============================================
+// --- Delivery Access Management ---
+
+let deliveryUsers = [];
+let selectedDeliveryUsers = new Set();
+
+async function showDeliveryAccessModal() {
+    document.getElementById('deliveryAccessModal').classList.add('active');
+    await loadDeliveryUsers();
+}
+
+function closeDeliveryAccessModal() {
+    document.getElementById('deliveryAccessModal').classList.remove('active');
+    selectedDeliveryUsers.clear();
+}
+
+async function loadDeliveryUsers(searchTerm = '') {
+    const list = document.getElementById('deliveryUsersList');
+    list.innerHTML = '<div class="loading">Loading users...</div>';
+    
+    try {
+        const url = `${API_URL}/users/delivery-access${searchTerm ? '?search=' + encodeURIComponent(searchTerm) : ''}`;
+        const response = await fetch(url, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            deliveryUsers = data.users;
+            displayDeliveryUsers(deliveryUsers);
+        } else {
+            list.innerHTML = '<p style="color: #e74c3c;">Failed to load users</p>';
+        }
+    } catch (error) {
+        console.error('Error loading delivery users:', error);
+        list.innerHTML = '<p style="color: #e74c3c;">Error loading users</p>';
+    }
+}
+
+function displayDeliveryUsers(users) {
+    const list = document.getElementById('deliveryUsersList');
+    
+    if (users.length === 0) {
+        list.innerHTML = '<p style="text-align: center; color: #666;">No users found</p>';
+        return;
+    }
+    
+    list.innerHTML = users.map(user => {
+        const hasAccess = user.deliveryAccess?.enabled || false;
+        const enabledAt = hasAccess && user.deliveryAccess?.enabledAt ? 
+            new Date(user.deliveryAccess.enabledAt).toLocaleDateString() : '';
+        
+        return `
+            <div class="delivery-user-card" style="
+                padding: 15px;
+                border: 2px solid ${hasAccess ? '#4caf50' : '#ddd'};
+                border-radius: 8px;
+                margin-bottom: 10px;
+                background: ${hasAccess ? '#f1f8f4' : 'white'};
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            ">
+                <div style="display: flex; align-items: center; gap: 15px; flex: 1;">
+                    <input type="checkbox" 
+                           id="delivery_${user._id}" 
+                           ${selectedDeliveryUsers.has(user._id) ? 'checked' : ''}
+                           onchange="toggleDeliveryUserSelection('${user._id}')"
+                           style="width: 20px; height: 20px; cursor: pointer;">
+                    
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; margin-bottom: 5px;">${user.name}</div>
+                        <div style="color: #666; font-size: 14px;">${user.email}</div>
+                        <div style="color: #999; font-size: 12px;">${user.phone || 'No phone'}</div>
+                    </div>
+                </div>
+                
+                <div style="text-align: right;">
+                    ${hasAccess ? `
+                        <div style="color: #4caf50; font-weight: 600; margin-bottom: 5px;">
+                            ✓ Delivery Enabled
+                        </div>
+                        <div style="color: #666; font-size: 12px;">
+                            Since: ${enabledAt}
+                        </div>
+                        <button class="btn btn-danger" onclick="disableUserDelivery('${user._id}')" 
+                                style="margin-top: 8px; padding: 5px 10px; font-size: 12px;">
+                            Disable
+                        </button>
+                    ` : `
+                        <button class="btn btn-success" onclick="enableUserDelivery('${user._id}')" 
+                                style="padding: 8px 15px;">
+                            Enable Delivery
+                        </button>
+                    `}
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    updateSelectedCount();
+}
+
+function toggleDeliveryUserSelection(userId) {
+    if (selectedDeliveryUsers.has(userId)) {
+        selectedDeliveryUsers.delete(userId);
+    } else {
+        selectedDeliveryUsers.add(userId);
+    }
+    updateSelectedCount();
+}
+
+function updateSelectedCount() {
+    document.getElementById('selectedDeliveryCount').textContent = selectedDeliveryUsers.size;
+}
+
+function selectAllDeliveryUsers() {
+    deliveryUsers.forEach(user => selectedDeliveryUsers.add(user._id));
+    displayDeliveryUsers(deliveryUsers);
+}
+
+function deselectAllDeliveryUsers() {
+    selectedDeliveryUsers.clear();
+    displayDeliveryUsers(deliveryUsers);
+}
+
+function searchDeliveryUsers() {
+    const searchTerm = document.getElementById('deliveryUserSearch').value;
+    loadDeliveryUsers(searchTerm);
+}
+
+async function enableUserDelivery(userId) {
+    if (!confirm('Enable delivery access for this user?')) return;
+    
+    try {
+        const response = await fetch(`${API_URL}/users/${userId}/enable-delivery`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            showNotification(data.message, 'success');
+            await loadDeliveryUsers();
+        } else {
+            const data = await response.json();
+            showNotification(data.error || 'Failed to enable delivery', 'error');
+        }
+    } catch (error) {
+        console.error('Error enabling delivery:', error);
+        showNotification('Error enabling delivery', 'error');
+    }
+}
+
+async function disableUserDelivery(userId) {
+    if (!confirm('Disable delivery access for this user?')) return;
+    
+    try {
+        const response = await fetch(`${API_URL}/users/${userId}/disable-delivery`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            showNotification(data.message, 'success');
+            await loadDeliveryUsers();
+        } else {
+            const data = await response.json();
+            showNotification(data.error || 'Failed to disable delivery', 'error');
+        }
+    } catch (error) {
+        console.error('Error disabling delivery:', error);
+        showNotification('Error disabling delivery', 'error');
+    }
+}
+
+async function bulkEnableDelivery() {
+    if (selectedDeliveryUsers.size === 0) {
+        showNotification('Please select at least one user', 'error');
+        return;
+    }
+    
+    if (!confirm(`Enable delivery for ${selectedDeliveryUsers.size} selected users?`)) return;
+    
+    try {
+        const response = await fetch(`${API_URL}/users/bulk-enable-delivery`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                userIds: Array.from(selectedDeliveryUsers)
+            })
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            showNotification(data.message, 'success');
+            selectedDeliveryUsers.clear();
+            await loadDeliveryUsers();
+        } else {
+            const data = await response.json();
+            showNotification(data.error || 'Failed to enable delivery', 'error');
+        }
+    } catch (error) {
+        console.error('Error bulk enabling delivery:', error);
+        showNotification('Error enabling delivery for users', 'error');
+    }
+}
+
+
+
+            // === VARIATIONS MANAGEMENT ===
+    let variationsData = [];
+
+    function toggleVariationsControls() {
+        const enabled = document.getElementById('enableVariations').checked;
+        const controls = document.getElementById('variationsControls');
+        
+        if (enabled) {
+            controls.style.display = 'block';
+            if (variationsData.length === 0) {
+                addVariation();
+            }
+        } else {
+            controls.style.display = 'none';
+        }
+    }
+
+    function addVariation() {
+        const newVariation = {
+            id: Date.now(),
+            name: '',
+            priceModifier: 0,
+            available: true
+        };
+        
+        variationsData.push(newVariation);
+        renderVariations();
+    }
+
+    function removeVariation(id) {
+        variationsData = variationsData.filter(v => v.id !== id);
+        renderVariations();
+    }
+
+    function renderVariations() {
+        const container = document.getElementById('variationsList');
+        
+        if (variationsData.length === 0) {
+            container.innerHTML = '<p style="color: #666; font-style: italic;">No variations added yet</p>';
+            return;
+        }
+        
+        container.innerHTML = variationsData.map((variation, index) => `
+            <div class="variation-item">
+                <input type="text" 
+                    placeholder="Variation name (e.g., Coconut)" 
+                    value="${variation.name}"
+                    onchange="variationsData[${index}].name = this.value">
+                
+                <input type="number" 
+                    step="0.01" 
+                    placeholder="Price +/-"
+                    value="${variation.priceModifier}"
+                    onchange="variationsData[${index}].priceModifier = parseFloat(this.value)">
+                
+                <label style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+                    <input type="checkbox" 
+                        ${variation.available ? 'checked' : ''}
+                        onchange="variationsData[${index}].available = this.checked">
+                    Available
+                </label>
+                
+                <button type="button" class="btn btn-danger" onclick="removeVariation(${variation.id})">
+                    ✕
+                </button>
+            </div>
+        `).join('');
+    }
+
+            // Support Tickets Management
+    let allTickets = [];
+
+    async function loadTickets() {
+        try {
+            const response = await fetch(`${API_URL}/support/tickets`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                allTickets = data.tickets;
+                displayTickets(allTickets);
+                updateTicketStats(allTickets);
+            }
+        } catch (error) {
+            console.error('Error loading tickets:', error);
+        }
+    }
+    // После определения API_URL
+const originalFetch = window.fetch;
+window.fetch = function(...args) {
+    return originalFetch.apply(this, args).then(response => {
+        if (response.status === 403 || response.status === 401) {
+            console.error('Authentication failed, logging out...');
+            localStorage.removeItem('staffToken');
+            authToken = null;
+            location.reload();
+        }
+        return response;
+    });
+};
+
+    function displayTickets(tickets) {
+        const tbody = document.querySelector('#ticketsTable tbody');
+        
+        if (!tickets || tickets.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No tickets found</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = tickets.map(ticket => {
+            const priorityClass = ticket.priority === 'critical' ? 'status-cancelled' : 
+                                ticket.priority === 'high' ? 'status-delivering' :
+                                ticket.priority === 'medium' ? 'status-preparing' : 'status-pending';
+            
+            return `
+                <tr>
+                    <td><strong>${ticket.ticketNumber}</strong></td>
+                    <td>${ticket.user.name}<br><small>${ticket.user.email}</small></td>
+                    <td><span class="order-type order-${ticket.type}">${ticket.type}</span></td>
+                    <td><span class="status ${priorityClass}">${ticket.priority}</span></td>
+                    <td>${ticket.subject.substring(0, 50)}${ticket.subject.length > 50 ? '...' : ''}</td>
+                    <td><span class="status status-${ticket.status}">${ticket.status.replace('_', ' ')}</span></td>
+                    <td>${new Date(ticket.createdAt).toLocaleDateString()}</td>
+                    <td>
+                        <button class="btn btn-primary" onclick="viewTicket('${ticket._id}')">View</button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function updateTicketStats(tickets) {
+        const open = tickets.filter(t => t.status === 'open').length;
+        const inProgress = tickets.filter(t => t.status === 'in_progress').length;
+        
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        const resolvedToday = tickets.filter(t => 
+            t.resolvedAt && new Date(t.resolvedAt) >= today
+        ).length;
+        
+        document.getElementById('openTickets').textContent = open;
+        document.getElementById('inProgressTickets').textContent = inProgress;
+        document.getElementById('resolvedToday').textContent = resolvedToday;
+    }
+
+    function filterTickets() {
+        const status = document.getElementById('ticketStatusFilter').value;
+        const type = document.getElementById('ticketTypeFilter').value;
+        const search = document.getElementById('ticketSearch').value.toLowerCase();
+        
+        let filtered = allTickets;
+        
+        if (status !== 'all') {
+            filtered = filtered.filter(t => t.status === status);
+        }
+        
+        if (type !== 'all') {
+            filtered = filtered.filter(t => t.type === type);
+        }
+        
+        if (search) {
+            filtered = filtered.filter(t => 
+                t.ticketNumber.toLowerCase().includes(search) ||
+                t.subject.toLowerCase().includes(search) ||
+                t.user.email.toLowerCase().includes(search)
+            );
+        }
+        
+        displayTickets(filtered);
+    }
+
+    async function viewTicket(ticketId) {
+        try {
+            const response = await fetch(`${API_URL}/support/tickets/${ticketId}`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            
+            if (response.ok) {
+                const ticket = await response.json();
+                displayTicketDetails(ticket);
+                document.getElementById('ticketModal').classList.add('active');
+            }
+        } catch (error) {
+            console.error('Error loading ticket:', error);
+        }
+    }
+
+    function displayTicketDetails(ticket) {
+        const errorInfo = ticket.errorDetails ? `
+            <div style="background:#f8f9fa;padding:15px;border-radius:8px;margin:15px 0;">
+                <h4 style="color:#e74c3c;">Error Details</h4>
+                <p><strong>Message:</strong> ${ticket.errorDetails.message || 'N/A'}</p>
+                <p><strong>URL:</strong> ${ticket.errorDetails.url || 'N/A'}</p>
+                <p><strong>Time:</strong> ${ticket.errorDetails.timestamp ? new Date(ticket.errorDetails.timestamp).toLocaleString() : 'N/A'}</p>
+                ${ticket.errorDetails.stack ? `<details><summary>Stack Trace</summary><pre style="font-size:11px;overflow:auto;">${ticket.errorDetails.stack}</pre></details>` : ''}
+            </div>
+        ` : '';
+        
+        const responses = ticket.responses && ticket.responses.length > 0 ? `
+            <h4 style="margin-top:20px;">Responses</h4>
+            ${ticket.responses.map(r => `
+                <div style="background:${r.isStaff ? '#e3f2fd' : '#f5f5f5'};padding:12px;border-radius:8px;margin:10px 0;">
+                    <strong>${r.isStaff ? '🛠️ Staff' : '👤 User'}:</strong> ${r.message}<br>
+                    <small style="color:#666;">${new Date(r.createdAt).toLocaleString()}</small>
+                </div>
+            `).join('')}
+        ` : '<p><em>No responses yet</em></p>';
+        
+        document.getElementById('ticketDetails').innerHTML = `
+            <p><strong>Ticket #:</strong> ${ticket.ticketNumber}</p>
+            <p><strong>User:</strong> ${ticket.user.name} (${ticket.user.email})</p>
+            <p><strong>Type:</strong> <span class="order-type order-${ticket.type}">${ticket.type}</span></p>
+            <p><strong>Priority:</strong> <span class="status status-${ticket.priority}">${ticket.priority}</span></p>
+            <p><strong>Status:</strong> <span class="status status-${ticket.status}">${ticket.status}</span></p>
+            <p><strong>Created:</strong> ${new Date(ticket.createdAt).toLocaleString()}</p>
+            <hr>
+            <h4>Subject</h4>
+            <p>${ticket.subject}</p>
+            <h4>Description</h4>
+            <p style="white-space:pre-wrap;">${ticket.description}</p>
+            ${errorInfo}
+            ${responses}
+            <hr>
+            <div style="margin-top:20px;">
+                <label>Update Status:</label>
+                <select id="ticketStatusUpdate">
+                    <option value="open" ${ticket.status === 'open' ? 'selected' : ''}>Open</option>
+                    <option value="in_progress" ${ticket.status === 'in_progress' ? 'selected' : ''}>In Progress</option>
+                    <option value="resolved" ${ticket.status === 'resolved' ? 'selected' : ''}>Resolved</option>
+                    <option value="closed" ${ticket.status === 'closed' ? 'selected' : ''}>Closed</option>
+                </select>
+                <button class="btn btn-primary" onclick="updateTicketStatus('${ticket._id}')">Update</button>
+            </div>
+            <div style="margin-top:15px;">
+                <label>Add Response:</label>
+                <textarea id="ticketResponse" rows="3" placeholder="Type your response..."></textarea>
+                <button class="btn btn-success" onclick="addTicketResponse('${ticket._id}')">Send Response</button>
+            </div>
+        `;
+    }
+
+    async function updateTicketStatus(ticketId) {
+        const status = document.getElementById('ticketStatusUpdate').value;
+        
+        try {
+            const response = await fetch(`${API_URL}/support/tickets/${ticketId}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status })
+            });
+            
+            if (response.ok) {
+                showNotification('Ticket updated successfully', 'success');
+                loadTickets();
+                closeTicketModal();
+            }
+        } catch (error) {
+            showNotification('Failed to update ticket', 'error');
+        }
+    }
+
+    async function addTicketResponse(ticketId) {
+        const message = document.getElementById('ticketResponse').value;
+        
+        if (!message.trim()) {
+            showNotification('Please enter a response', 'error');
+            return;
+        }
+        
+        try {
+            const response = await fetch(`${API_URL}/support/tickets/${ticketId}/responses`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message })
+            });
+            
+            if (response.ok) {
+                showNotification('Response added', 'success');
+                viewTicket(ticketId); // Reload ticket details
+            }
+        } catch (error) {
+            showNotification('Failed to add response', 'error');
+        }
+    }
+
+    function closeTicketModal() {
+        document.getElementById('ticketModal').classList.remove('active');
+    }
+
+    // Update showSection to include support
+    // Найдите функцию showSection и добавьте case 'support':
+    // case 'support':
+    //     loadTickets();
+    //     break;
+
+            // Reviews Management
+    let allReviews = [];
+
+    async function loadReviews() {
+        try {
+            const response = await fetch(`${API_URL}/reviews/all-reviews`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                allReviews = data.reviews || [];
+                displayReviews(allReviews);
+                updateReviewsStats(allReviews);
+            } else {
+                showNotification('Failed to load reviews', 'error');
+            }
+        } catch (error) {
+            console.error('Error loading reviews:', error);
+            showNotification('Error loading reviews', 'error');
+        }
+    }
+
+    function displayReviews(reviews) {
+        const tbody = document.querySelector('#reviewsTable tbody');
+        
+        if (!reviews || reviews.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No reviews found</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = reviews.map(review => {
+            const stars = '⭐'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+            const comment = review.comment ? 
+                (review.comment.length > 100 ? review.comment.substring(0, 100) + '...' : review.comment) : 
+                '<em>No comment</em>';
+            
+            return `
+                <tr>
+                    <td><strong>${review.product?.name || 'Unknown Product'}</strong></td>
+                    <td>${review.user?.name || 'Anonymous'}<br><small>${review.user?.email || ''}</small></td>
+                    <td>${stars}<br><strong>${review.rating}/5</strong></td>
+                    <td>${comment}</td>
+                    <td>${review.verified ? '<span class="status status-completed">✓ Verified</span>' : '<span class="status status-pending">Not Verified</span>'}</td>
+                    <td>${review.helpful?.length || 0} 👍</td>
+                    <td>${new Date(review.createdAt).toLocaleDateString()}</td>
+                    <td>
+                        <button class="btn btn-primary" onclick="viewReviewDetails('${review._id}')">View</button>
+                        <button class="btn btn-danger" onclick="deleteReview('${review._id}')">Delete</button>
+                        ${review.isActive ? 
+                            `<button class="btn btn-warning" onclick="moderateReview('${review._id}', false)">Hide</button>` : 
+                            `<button class="btn btn-success" onclick="moderateReview('${review._id}', true)">Show</button>`
+                        }
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function updateReviewsStats(reviews) {
+        const total = reviews.length;
+        const verified = reviews.filter(r => r.verified).length;
+        const avgRating = total > 0 ? 
+            (reviews.reduce((sum, r) => sum + r.rating, 0) / total).toFixed(1) : 
+            '0.0';
+        
+        document.getElementById('totalReviews').textContent = total;
+        document.getElementById('avgRating').textContent = avgRating;
+        document.getElementById('verifiedReviews').textContent = verified;
+    }
+
+    function searchReviews() {
+        const searchTerm = document.getElementById('reviewSearch').value.toLowerCase();
+        const filtered = allReviews.filter(review => 
+            review.product?.name?.toLowerCase().includes(searchTerm) ||
+            review.user?.name?.toLowerCase().includes(searchTerm) ||
+            review.user?.email?.toLowerCase().includes(searchTerm) ||
+            review.comment?.toLowerCase().includes(searchTerm)
+        );
+        displayReviews(filtered);
+    }
+
+    function filterReviews() {
+        const filter = document.getElementById('reviewFilter').value;
+        let filtered = allReviews;
+        
+        switch(filter) {
+            case 'verified':
+                filtered = allReviews.filter(r => r.verified);
+                break;
+            case 'unverified':
+                filtered = allReviews.filter(r => !r.verified);
+                break;
+            case '5':
+            case '4':
+            case '3':
+            case '2':
+            case '1':
+                filtered = allReviews.filter(r => r.rating === parseInt(filter));
+                break;
+            default:
+                filtered = allReviews;
+        }
+        
+        displayReviews(filtered);
+    }
+
+    function viewReviewDetails(reviewId) {
+        const review = allReviews.find(r => r._id === reviewId);
+        if (!review) return;
+        
+        const stars = '⭐'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+        const details = `
+            <h3>Review Details</h3>
+            <p><strong>Product:</strong> ${review.product?.name || 'Unknown'}</p>
+            <p><strong>Customer:</strong> ${review.user?.name || 'Anonymous'}</p>
+            <p><strong>Email:</strong> ${review.user?.email || 'N/A'}</p>
+            <p><strong>Rating:</strong> ${stars} (${review.rating}/5)</p>
+            <p><strong>Verified Purchase:</strong> ${review.verified ? 'Yes ✓' : 'No'}</p>
+            ${review.orderId ? `<p><strong>Order ID:</strong> ${review.orderId}</p>` : ''}
+            <p><strong>Helpful Votes:</strong> ${review.helpful?.length || 0}</p>
+            <p><strong>Date:</strong> ${new Date(review.createdAt).toLocaleString()}</p>
+            <p><strong>Status:</strong> ${review.isActive ? 'Active' : 'Hidden'}</p>
+            <hr>
+            <h4>Comment:</h4>
+            <p style="padding: 10px; background: #f5f5f5; border-radius: 5px; white-space: pre-wrap;">
+                ${review.comment || 'No comment provided'}
+            </p>
+        `;
+        
+        // Reuse order modal for display
+        document.getElementById('orderDetails').innerHTML = details;
+        document.querySelector('#orderModal h2').textContent = 'Review Details';
+        document.querySelector('#orderModal > div:last-child').style.display = 'none';
+        document.getElementById('orderModal').classList.add('active');
+    }
+
+    async function deleteReview(reviewId) {
+        if (!confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
+            return;
+        }
+        
+        try {
+            const response = await fetch(`${API_URL}/reviews/${reviewId}/admin`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`
+                }
+            });
+            
+            if (response.ok) {
+                showNotification('Review deleted successfully', 'success');
+                loadReviews();
+            } else {
+                const data = await response.json();
+                showNotification('Failed to delete review: ' + data.error, 'error');
+            }
+        } catch (error) {
+            console.error('Error deleting review:', error);
+            showNotification('Error deleting review', 'error');
+        }
+    }
+
+    async function moderateReview(reviewId, isActive) {
+        try {
+            const response = await fetch(`${API_URL}/reviews/${reviewId}/moderate`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ isActive })
+            });
+            
+            if (response.ok) {
+                showNotification(`Review ${isActive ? 'shown' : 'hidden'} successfully`, 'success');
+                loadReviews();
+            } else {
+                const data = await response.json();
+                showNotification('Failed to moderate review: ' + data.error, 'error');
+            }
+        } catch (error) {
+            console.error('Error moderating review:', error);
+            showNotification('Error moderating review', 'error');
+        }
+    }
+
+    // Mobile sidebar functions
+    function toggleMobileSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.querySelector('.mobile-overlay');
+        
+        sidebar.classList.toggle('mobile-open');
+        overlay.classList.toggle('active');
+    }
+
+    function closeMobileSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.querySelector('.mobile-overlay');
+        
+        sidebar.classList.remove('mobile-open');
+        overlay.classList.remove('active');
+    }
+
+// Close sidebar when clicking menu items on mobile
+document.addEventListener('DOMContentLoaded', function() {
+    const menuLinks = document.querySelectorAll('.sidebar-menu a');
+    menuLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            if (window.innerWidth <= 768) {
+                closeMobileSidebar();
+            }
+        });
+    });
+    
+    // ✅ ДОБАВИТЬ СЮДА (внутри того же DOMContentLoaded)
+    const priceInput = document.getElementById('productPrice');
+    if (priceInput) {
+        priceInput.addEventListener('input', () => {
+            if (document.getElementById('enableDiscount').checked) {
+                calculateDiscountPrice();
+            }
+        });
+    }
+    
+    // Также добавьте обработчик для поля процента скидки
+    const discountInput = document.getElementById('discountPercentage');
+    if (discountInput) {
+        discountInput.addEventListener('input', () => {
+            if (document.getElementById('enableDiscount').checked) {
+                calculateDiscountPrice();
+            }
+        });
+    }
+    
+        
+        // Close sidebar on window resize if screen becomes larger
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                closeMobileSidebar();
+            }
+        });
+    });
+
+    // Enhanced touch scrolling for tables
+    function enableTouchScroll() {
+        const tables = document.querySelectorAll('.table-wrapper');
+        tables.forEach(wrapper => {
+            let isScrolling = false;
+            let startX = 0;
+            let scrollLeft = 0;
+            
+            wrapper.addEventListener('touchstart', (e) => {
+                isScrolling = true;
+                startX = e.touches[0].pageX - wrapper.offsetLeft;
+                scrollLeft = wrapper.scrollLeft;
+            });
+            
+            wrapper.addEventListener('touchmove', (e) => {
+                if (!isScrolling) return;
+                e.preventDefault();
+                const x = e.touches[0].pageX - wrapper.offsetLeft;
+                const walk = (x - startX) * 2;
+                wrapper.scrollLeft = scrollLeft - walk;
+            });
+            
+            wrapper.addEventListener('touchend', () => {
+                isScrolling = false;
+            });
+        });
+    }
+            
+            // Initialize mobile features
+            document.addEventListener('DOMContentLoaded', enableTouchScroll);
+            // API Configuration
+            function getAPIURL() {
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    return 'http://45.10.154.118:3000/api';
+                } else {
+                    return 'https://wc-snackshack.net/api';
+                }
+            }
+            
+            const API_URL = getAPIURL();   
+            let authToken = localStorage.getItem('staffToken');
+            let currentUser = null;
+            let currentOrderId = null;
+            let currentProductId = null;
+            let currentCouponId = null;
+            let allProducts = [];
+            let allOrders = [];
+            let allUsers = [];
+
+            // Helper для красивого отображения методов оплаты
+    function getPaymentMethodLabel(method) {
+        const labels = {
+            'card': 'Card',
+            'cash': 'Cash',
+            'cod': 'Cash or Via Terminal',
+            'bonus': 'Bonus Points'
+        };
+        return labels[method] || method.toUpperCase();
+    }
+
+    // Helper для корректного отображения статуса оплаты
+    function getPaymentStatusDisplay(order) {
+        const paymentStatus = order.payment?.status || 'pending';  // ✅ FIXED!
+        const paymentMethod = order.payment?.method || 'cash';
+        const orderStatus = order.status;
+        
+        // Для онлайн-платежей показываем реальный статус
+        if (order.payment?.isOnlinePayment) {
+            return paymentStatus;
+        }
+        
+        // Для COD/наличных: если заказ завершен, показываем completed
+        if ((paymentMethod === 'cod' || paymentMethod === 'cash') && orderStatus === 'completed') {
+            return 'completed';
+        }
+        
+        // Иначе показываем текущий статус
+        return paymentStatus;
+    }
+
+            // Notification System
+            function showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.textContent = message;
+                document.getElementById('notifications').appendChild(notification);
+                
+                setTimeout(() => notification.classList.add('show'), 100);
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => notification.remove(), 300);
+                }, 4000);
+            }
+
+            // Authentication Check
+            if (authToken) {
+                fetch(`${API_URL}/auth/verify`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.valid) {
+                        currentUser = data.user;
+                        showDashboard();
+                    } else {
+                        localStorage.removeItem('staffToken');
+                        authToken = null;
+                    }
+                })
+                .catch(error => {
+                    console.log('Token verification failed:', error);
+                    localStorage.removeItem('staffToken');
+                    authToken = null;
+                });
+            }
+
+            // Login Handler
+            document.getElementById('loginForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const email = document.getElementById('staffEmail').value;
+                const password = document.getElementById('staffPassword').value;
+                const loginButton = document.getElementById('loginButtonText');
+                const loginSpinner = document.getElementById('loginSpinner');
+
+                loginButton.style.display = 'none';
+                loginSpinner.style.display = 'inline-block';
+
+                try {
+                    const response = await fetch(`${API_URL}/auth/staff-login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        authToken = data.token;
+                        currentUser = data.user;
+                        localStorage.setItem('staffToken', authToken);
+                        showDashboard();
+                        showNotification('Login successful!', 'success');
+                    } else {
+                        showNotification(data.error || 'Login failed', 'error');
+                    }
+                } catch (error) {
+                    showNotification('Connection error: ' + error.message, 'error');
+                } finally {
+                    loginButton.style.display = 'inline';
+                    loginSpinner.style.display = 'none';
+                }
+            });
+
+            // Dashboard Functions
+            function showDashboard() {
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('dashboard').classList.add('active');
+                
+                if (currentUser && currentUser.name) {
+                    document.getElementById('staffName').textContent = currentUser.name;
+                } else {
+                    document.getElementById('staffName').textContent = 'Staff';
+                }
+                
+                loadDashboardData();
+                loadProducts();
+                loadPaymentSettings(); // ENHANCED: Load payment settings
+            }
+
+// Navigation
+function showSection(sectionName) {
+    document.querySelectorAll('.sidebar-menu a').forEach(link => {
+        link.classList.remove('active');
+    });
+    
+    // Найти ссылку по onclick и активировать её
+    const clickedLink = document.querySelector(`.sidebar-menu a[onclick*="showSection('${sectionName}')"]`);
+    if (clickedLink) {
+        clickedLink.classList.add('active');
+    }
+    
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.remove('active');
+    });
+    
+    const targetSection = document.getElementById(sectionName);
+    if (targetSection) {
+        targetSection.classList.add('active');
+    } else {
+        console.error('Section not found:', sectionName);
+        return;
+    }
+    
+    // Показать обычный вид модального окна заказов
+    const orderModal = document.querySelector('#orderModal > div:last-child');
+    if (orderModal) {
+        orderModal.style.display = 'block';
+    }
+    const orderModalTitle = document.querySelector('#orderModal h2');
+    if (orderModalTitle) {
+        orderModalTitle.textContent = 'Order Details';
+    }
+    
+    switch(sectionName) {
+        case 'overview':
+            loadDashboardData();
+            break;
+        case 'reviews':
+            loadReviews();
+            break;
+        case 'orders':
+            loadOrders();
+            break;
+        case 'products':
+            loadProducts();
+            break;
+        case 'coupons':
+            loadCoupons();
+            break;
+        case 'deals':
+            loadDeals();
+            break;
+        case 'support':
+            loadTickets();
+            break;
+        case 'users':
+            loadUsers();
+            break;
+        case 'stats':
+            loadStatistics();
+            break;
+    }
+}
+
+            // ENHANCED Payment Settings
+            async function loadPaymentSettings() {
+                try {
+                    const res = await fetch(`${API_URL}/settings/payment`, {
+                        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('staffToken') }
+                    });
+                    const data = await res.json();
+                    
+                    document.getElementById('squareToggle').checked = !!data.squareEnabled;
+                    document.getElementById('disableOnlineToggle').checked = !!data.disableOnlinePayment;
+                } catch (error) {
+                    console.error('Error loading payment settings:', error);
+                }
+            }
+
+            // Handle Square payment toggle
+            document.getElementById('squareToggle').addEventListener('change', async (e) => {
+                try {
+                    await fetch(`${API_URL}/settings/payment`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + localStorage.getItem('staffToken')
+                        },
+                        body: JSON.stringify({
+                            squareEnabled: e.target.checked,
+                            disableOnlinePayment: document.getElementById('disableOnlineToggle').checked
+                        })
+                    });
+                    showNotification('Payment settings updated successfully', 'success');
+                } catch (error) {
+                    showNotification('Failed to update payment settings', 'error');
+                    e.target.checked = !e.target.checked;
+                }
+            });
+
+            // Handle online payment disable toggle
+            document.getElementById('disableOnlineToggle').addEventListener('change', async (e) => {
+                try {
+                    await fetch(`${API_URL}/settings/payment`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + localStorage.getItem('staffToken')
+                        },
+                        body: JSON.stringify({
+                            squareEnabled: document.getElementById('squareToggle').checked,
+                            disableOnlinePayment: e.target.checked
+                        })
+                    });
+                    showNotification('Payment settings updated successfully', 'success');
+                } catch (error) {
+                    showNotification('Failed to update payment settings', 'error');
+                    e.target.checked = !e.target.checked;
+                }
+            });
+
+            // Delivery Settings
+            const toggleDelivery = document.getElementById('toggleDelivery');
+            const deliveryStatusText = document.getElementById('deliveryStatusText');
+
+            // Load delivery settings
+            fetch(`${API_URL}/public/delivery`)
+                .then(r=>r.json())
+                .then(d=>{
+                    toggleDelivery.checked = d.deliveryEnabled;
+                    deliveryStatusText.textContent = d.deliveryEnabled ? 'Enabled' : 'Disabled';
+                });
+
+            toggleDelivery.addEventListener('change', ()=>{
+                fetch(`${API_URL}/settings/delivery`, {
+                    method:'PUT',
+                    headers:{
+                        'Content-Type':'application/json',
+                        'Authorization':'Bearer ' + localStorage.getItem('staffToken')
+                    },
+                    body: JSON.stringify({ enabled: toggleDelivery.checked })
+                }).then(r=>r.json())
+                    .then(d=>{
+                        deliveryStatusText.textContent = d.deliveryEnabled ? 'Enabled' : 'Disabled';
+                        showNotification('Delivery ' + (d.deliveryEnabled ? 'enabled' : 'disabled'),'success');
+                    });
+            });
+
+            // ENHANCED Dashboard Data Loading
+            function safeFixed(num) {
+                return (typeof num === 'number' && !isNaN(num)) ? num.toFixed(2) : '0.00';
+            }
+
+async function loadDashboardData() {
+    // ✅ ДОБАВИТЬ ПРОВЕРКУ
+    if (!authToken) {
+        console.error('No auth token found');
+        showNotification('Authentication required. Please login again.', 'error');
+        return;
+    }
+    
+    try {
+        const statsResponse = await fetch(`${API_URL}/stats`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+                    
+                    if (statsResponse.ok) {
+                        const stats = await statsResponse.json();
+                        document.getElementById('totalOrders').textContent = stats.totalOrders || '0';
+                        document.getElementById('todayOrders').textContent = stats.todayOrders || '0';
+                        document.getElementById('totalRevenue').textContent = safeFixed(stats.totalRevenue);
+                        document.getElementById('bonusOrders').textContent = stats.bonusOrders || '0';
+                        document.getElementById('bonusPointsUsed').textContent = stats.totalBonusPointsUsed || '0';
+                        // ENHANCED: Add new payment stats
+                        document.getElementById('onlinePayments').textContent = stats.onlinePayments || '0';
+                        document.getElementById('cashPayments').textContent = stats.cashPayments || '0';
+                    }
+
+                    const ordersResponse = await fetch(`${API_URL}/orders`, {
+                        headers: { 'Authorization': `Bearer ${authToken}` }
+                    });
+                    
+                    if (ordersResponse.ok) {
+                        const orders = await ordersResponse.json();
+                        allOrders = orders;
+                        displayRecentOrders(orders.slice(0,10));
+                        const activeCount = orders.filter(o => ['pending','accepted','preparing','delivering'].includes(o.status)).length;
+                        document.getElementById('activeOrders').textContent = activeCount || '0';
+                    }
+
+ const dealsResponse = await fetch(`${API_URL}/deals`, {
+    headers: { 'Authorization': `Bearer ${authToken}` }
+});
+
+if (dealsResponse.ok) {
+    const deals = await dealsResponse.json();
+    const activeDealsCount = deals.filter(d => {
+        const now = new Date();
+        return d.active && 
+            (!d.startDate || new Date(d.startDate) <= now) &&
+            (!d.endDate || new Date(d.endDate) >= now) &&
+            (d.maxRedemptions === 0 || d.currentRedemptions < d.maxRedemptions);
+    }).length;
+    document.getElementById('activeDeals').textContent = activeDealsCount || '0';
+}
+                } catch (error) {
+                    console.error('Error loading dashboard:', error);
+                    showNotification('Error loading dashboard data', 'error');
+                }
+            }
+            
+
+            // ENHANCED Display Recent Orders with Payment Info
+            function displayRecentOrders(orders) {
+                const tbody = document.querySelector('#recentOrdersTable tbody');
+                tbody.innerHTML = orders.map(order => {
+                    let orderType = '';
+                    let orderTypeClass = '';
+                    
+                    if (order.isBonusOrder) {
+                        orderType = 'BONUS';
+                        orderTypeClass = 'order-bonus';
+                    } else if (order.couponUsed && order.couponUsed.wasUsed) {
+                        orderType = 'COUPON';
+                        orderTypeClass = 'order-coupon';
+                    } else {
+                        orderType = 'REGULAR';
+                        orderTypeClass = 'order-regular';
+                    }
+
+                    // ENHANCED: Payment display
+    let paymentDisplay = '';
+    const paymentStatus = order.payment?.status || 'pending';  // ✅ Gets from order  // ← ИСПРАВЛЕНО!
+    const paymentMethod = order.payment?.method || 'cash';
+    const isOnlinePayment = order.payment?.isOnlinePayment || false;
+                    
+                    paymentDisplay += `<span class="payment-status payment-${paymentStatus}">${paymentStatus}</span>`;
+                    paymentDisplay += `<span class="payment-method method-${paymentMethod}">${getPaymentMethodLabel(paymentMethod)}</span>`;
+                    
+                    if (isOnlinePayment) {
+                        paymentDisplay += `<span class="online-payment-badge">PAID ONLINE</span>`;
+                    }
+                    
+                    // Add card info if available
+                    if (order.payment?.cardLast4) {
+                        paymentDisplay += `<div class="card-info">**** ${order.payment.cardLast4} (${order.payment.cardBrand || 'Card'})</div>`;
+                    }
+                    
+                    return `
+                        <tr>
+                            <td>${order.orderNumber}</td>
+                            <td>${order.customer.name}</td>
+                            <td><span class="order-type ${orderTypeClass}">${orderType}</span></td>
+                            <td>${paymentDisplay}</td>
+                            <td>${order.delivery.type === 'classroom' ? 'Class: ' + order.delivery.classroom : order.delivery.location || 'Pickup'}</td>
+                            <td>$${safeFixed(order.payment?.total)}</td>
+                            <td><span class="status status-${order.status}">${order.status}</span></td>
+                            <td>
+                                <button class="btn btn-primary" onclick="viewOrder('${order._id}')">View</button>
+                                ${order.status !== 'cancelled' && order.status !== 'completed' ? 
+                                    `<button class="btn btn-danger" onclick="cancelOrder('${order._id}', '${order.payment?.transactionId || ''}', ${order.payment?.total || 0})">Cancel</button>` : 
+                                    ''}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            // Load All Orders
+            async function loadOrders() {
+                try {
+                    const response = await fetch(`${API_URL}/orders`, {
+                        headers: { 'Authorization': `Bearer ${authToken}` }
+                    });
+                    
+                    if (response.ok) {
+                        const orders = await response.json();
+                        allOrders = orders;
+                        displayOrders(orders);
+                    }
+                } catch (error) {
+                    console.error('Error loading orders:', error);
+                    showNotification('Error loading orders', 'error');
+                }
+            }
+
+            // ENHANCED Display Orders with Payment Info
+            function displayOrders(orders) {
+                const tbody = document.querySelector('#ordersTable tbody');
+                tbody.innerHTML = orders.map(order => {
+                    const itemsList = order.items.map(item => 
+                        `${item.quantity}x ${item.name}${item.isFree ? ' (FREE)' : ''}${item.bonusUsed > 0 ? ` (${item.bonusUsed}★)` : ''}`
+                    ).join(', ');
+                    
+                    const orderTime = new Date(order.createdAt).toLocaleString();
+                    
+                    let orderType = '';
+                    let orderTypeClass = '';
+                    
+                    if (order.isBonusOrder) {
+                        orderType = 'BONUS';
+                        orderTypeClass = 'order-bonus';
+                    } else if (order.couponUsed && order.couponUsed.wasUsed) {
+                        orderType = 'COUPON';
+                        orderTypeClass = 'order-coupon';
+                    } else {
+                        orderType = 'REGULAR';
+                        orderTypeClass = 'order-regular';
+                    }
+
+                    // ENHANCED: Payment display
+    let paymentDisplay = '';
+    const paymentStatus = order.payment?.status || 'pending';  // ✅ Gets from order
+    const paymentMethod = order.payment?.method || 'cash';
+    const isOnlinePayment = order.payment?.isOnlinePayment || false;
+                    
+                    paymentDisplay += `<span class="payment-status payment-${paymentStatus}">${paymentStatus}</span>`;
+                    paymentDisplay += `<span class="payment-method method-${paymentMethod}">${getPaymentMethodLabel(paymentMethod)}</span>`;
+                    
+                    if (isOnlinePayment) {
+                        paymentDisplay += `<span class="online-payment-badge">PAID ONLINE</span>`;
+                    }
+                    
+                    // Add card info if available
+                    if (order.payment?.cardLast4) {
+                        paymentDisplay += `<br><span class="card-info">Card: **** ${order.payment.cardLast4} (${order.payment.cardBrand || 'Unknown'})</span>`;
+                    }
+                    
+                    return `
+                        <tr>
+                            <td>${order.orderNumber}</td>
+                            <td>${order.customer.name}</td>
+                            <td>${order.customer.phone}</td>
+                            <td><span class="order-type ${orderTypeClass}">${orderType}</span></td>
+                            <td>${paymentDisplay}</td>
+                            <td>${order.delivery.type === 'classroom' ? 
+                                'Class: ' + order.delivery.classroom : 
+                                order.delivery.location || 'Pickup'}</td>
+                            <td>${itemsList}</td>
+                            <td>$${safeFixed(order.payment?.total)}</td>
+                            <td><span class="status status-${order.status}">${order.status}</span></td>
+                            <td>${orderTime}</td>
+                            <td>
+                                <button class="btn btn-primary" onclick="viewOrder('${order._id}')">View</button>
+                                ${order.status !== 'cancelled' && order.status !== 'completed' ? 
+                                    `<button class="btn btn-danger" onclick="cancelOrder('${order._id}', '${order.payment?.transactionId || ''}', ${order.payment?.total || 0})">Cancel</button>` : 
+                                    ''}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            // Filter Orders
+            function filterOrders() {
+                const statusFilter = document.getElementById('statusFilter').value;
+                const typeFilter = document.getElementById('typeFilter').value;
+                const orderNumberSearch = document.getElementById('orderNumberSearch').value.trim().toLowerCase();
+
+                let filteredOrders = allOrders;
+
+                if (statusFilter) {
+                    filteredOrders = filteredOrders.filter(order => order.status === statusFilter);
+                }
+
+                if (typeFilter) {
+                    filteredOrders = filteredOrders.filter(order => {
+                        switch(typeFilter) {
+                            case 'bonus': return order.isBonusOrder;
+                            case 'coupon': return order.couponUsed && order.couponUsed.wasUsed;
+                            case 'regular': return !order.isBonusOrder && (!order.couponUsed || !order.couponUsed.wasUsed);
+                            default: return true;
+                        }
+                    });
+                }
+
+                if (orderNumberSearch) {
+                    filteredOrders = filteredOrders.filter(order =>
+                        order.orderNumber.toLowerCase().includes(orderNumberSearch)
+                    );
+                }
+
+                displayOrders(filteredOrders);
+            }
+
+            // Load Products
+            async function loadProducts() {
+                try {
+                    const response = await fetch(`${API_URL}/products`);
+                    
+                    if (response.ok) {
+                        allProducts = await response.json();
+                        displayProducts(allProducts);
+                        updateFreeItemOptions();
+                    }
+                } catch (error) {
+                    console.error('Error loading products:', error);
+                    showNotification('Error loading products', 'error');
+                }
+            }
+
+            function displayProducts(products) {
+                const tbody = document.querySelector('#productsTable tbody');
+
+                if (!products || products.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7">No products available at the moment.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = products.map(product => {
+                    // Fix image URL to use HTTPS when needed
+                    let imageContent;
+                    if (product.image && product.image.startsWith('http')) {
+                        let imageUrl = product.image;
+                        if (window.location.protocol === 'https:' && imageUrl.startsWith('http:')) {
+                            imageUrl = imageUrl.replace('http:', 'https:');
+                        }
+                        imageContent = `<img src="${imageUrl}" alt="${product.name}" style="width:50px;height:50px;object-fit:cover;" 
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div style="display:none; font-size:10px;">${product.name}</div>`;
+                    } else {
+                        imageContent = `<div style="font-size:10px;">${product.name}</div>`;
+                    }
+
+                    const hasBonus = product.bonusInfo && product.bonusInfo.hasBonusPrice;
+
+                    return `
+                        <tr>
+                            <td>${imageContent}</td>
+                            <td>${product.name}</td>
+                            <td>$${product.price.toFixed(2)}</td>
+                            <td>${product.category}</td>
+                            <td>
+                            <input type="checkbox"
+                                    ${product.available ? 'checked' : ''}
+                                    onchange="toggleProductAvailability('${product._id}', this.checked)">
+                            </td>
+                            <td><span class="status ${hasBonus ? 'status-bonus' : 'status-regular'}">
+                                    ${hasBonus ? 'Enabled' : 'Disabled'}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-warning" onclick="editProduct('${product._id}')">Edit</button>
+                                <button class="btn btn-danger" onclick="deleteProduct('${product._id}')">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            function toggleProductAvailability(id, isAvailable) {
+                fetch(`${API_URL}/products/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ available: isAvailable })
+                })
+                .then(res => res.json())
+                .then(() => showNotification('Availability updated', 'success'))
+                .catch(() => showNotification('Error updating product', 'error'));
+            }
+
+            // Product Modal Functions
+    function showAddProduct() {
+        currentProductId = null;
+        document.getElementById('productModalTitle').textContent = 'Add Product';
+        document.getElementById('productForm').reset();
+        resetImageUpload();
+        resetBonusControls();
+        
+        // ДОБАВИТЬ:
+        document.getElementById('enableVariations').checked = false;
+        variationsData = [];
+        document.getElementById('variationsControls').style.display = 'none';
+        
+        document.getElementById('productModal').classList.add('active');
+    }
+
+            function resetImageUpload() {
+                document.getElementById('uploadUrl').checked = true;
+                document.getElementById('uploadFile').checked = false;
+                document.getElementById('urlUpload').style.display = 'block';
+                document.getElementById('fileUpload').style.display = 'none';
+                document.getElementById('productImageUrl').value = '';
+                document.getElementById('uploadProgress').style.display = 'none';
+                document.getElementById('imagePreview').style.display = 'none';
+                document.getElementById('progressBar').style.width = '0%';
+            }
+
+            function resetBonusControls() {
+                document.getElementById('enableBonus').checked = false;
+                document.getElementById('bonusControls').classList.remove('active');
+                document.getElementById('bonusPointsRequired').value = 0;
+                document.getElementById('discountPercent').value = 0;
+                document.getElementById('allowFullBonus').checked = false;
+            }
+
+            function toggleBonusControls() {
+                const enableBonus = document.getElementById('enableBonus').checked;
+                const bonusControls = document.getElementById('bonusControls');
+                
+                if (enableBonus) {
+                    bonusControls.classList.add('active');
+                } else {
+                    bonusControls.classList.remove('active');
+                }
+            }
+
+async function editProduct(productId) {
+    currentProductId = productId;
+    
+    try {
+        const response = await fetch(`${API_URL}/products/${productId}`);
+        
+        if (response.ok) {
+            const product = await response.json();
+            document.getElementById('productModalTitle').textContent = 'Edit Product';
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productPrice').value = product.price;
+            document.getElementById('productCategory').value = product.category;
+            document.getElementById('productDescription').value = product.description;
+            document.getElementById('productAvailable').value = product.available.toString();
+            
+            // Handle bonus settings
+            if (product.bonusInfo && product.bonusInfo.hasBonusPrice) {
+                document.getElementById('enableBonus').checked = true;
+                document.getElementById('bonusPointsRequired').value = product.bonusInfo.bonusPointsRequired || 0;
+                document.getElementById('discountPercent').value = product.bonusInfo.discountPercent || 0;
+                document.getElementById('allowFullBonus').checked = product.bonusInfo.allowFullBonusPayment || false;
+                toggleBonusControls();
+            }
+            
+            // ✅ ДОБАВИТЬ - Handle discount settings
+            if (product.discount && product.discount.enabled && product.discount.percentage > 0) {
+                document.getElementById('enableDiscount').checked = true;
+                document.getElementById('discountPercentage').value = product.discount.percentage;
+                document.getElementById('originalPrice').value = product.discount.originalPrice || product.price;
+                toggleDiscountControls();
+            } else {
+                // Reset discount controls
+                document.getElementById('enableDiscount').checked = false;
+                document.getElementById('discountPercentage').value = 0;
+                document.getElementById('originalPrice').value = 0;
+                document.getElementById('discountControls').style.display = 'none';
+            }
+            
+            // Handle image display
+            if (product.image && product.image.startsWith('http')) {
+                document.getElementById('uploadUrl').checked = true;
+                document.getElementById('productImageUrl').value = product.image;
+                toggleImageUploadMethod();
+                showImagePreview(product.image);
+            }
+            
+            // Handle variations
+            if (product.hasVariations && product.variations) {
+                document.getElementById('enableVariations').checked = true;
+                variationsData = product.variations.map((v, index) => ({
+                    id: Date.now() + index,
+                    name: v.name,
+                    priceModifier: v.priceModifier || 0,
+                    available: v.available !== false
+                }));
+                toggleVariationsControls();
+                renderVariations();
+            } else {
+                document.getElementById('enableVariations').checked = false;
+                variationsData = [];
+                document.getElementById('variationsControls').style.display = 'none';
+            }
+            
+            document.getElementById('productModal').classList.add('active');
+        }
+    } catch (error) {
+        console.error('Error loading product:', error);
+        showNotification('Error loading product', 'error');
+    }
+}
+                        
+
+
+            // Image Upload Functions
+            document.querySelectorAll('input[name="imageMethod"]').forEach(radio => {
+                radio.addEventListener('change', toggleImageUploadMethod);
+            });
+            
+
+            function toggleImageUploadMethod() {
+                const method = document.querySelector('input[name="imageMethod"]:checked').value;
+                document.getElementById('urlUpload').style.display = method === 'url' ? 'block' : 'none';
+                document.getElementById('fileUpload').style.display = method === 'file' ? 'block' : 'none';
+            }
+
+            async function handleImageUpload(input) {
+                const file = input.files[0];
+                if (!file) return;
+
+                // Validate file
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                if (!allowedTypes.includes(file.type)) {
+                    showNotification('Please select a valid image file (JPG, PNG, GIF, WEBP)', 'error');
+                    return;
+                }
+
+                if (file.size > 5 * 1024 * 1024) { // 5MB
+                    showNotification('File size must be less than 5MB', 'error');
+                    return;
+                }
+
+                // Show progress
+                document.getElementById('uploadProgress').style.display = 'block';
+                document.getElementById('progressBar').style.width = '0%';
+
+                // Create form data
+                const formData = new FormData();
+                formData.append('image', file);
+
+                try {
+                    // Simulate progress
+                    let progress = 0;
+                    const progressInterval = setInterval(() => {
+                        progress += 10;
+                        document.getElementById('progressBar').style.width = progress + '%';
+                        if (progress >= 90) clearInterval(progressInterval);
+                    }, 100);
+
+                    const response = await fetch(`${API_URL}/upload`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`
+                        },
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // Complete progress
+                        document.getElementById('progressBar').style.width = '100%';
+                        setTimeout(() => {
+                            document.getElementById('uploadProgress').style.display = 'none';
+                        }, 500);
+
+                        // Fix URL protocol and show preview
+                        let imageUrl = data.url;
+                        if (window.location.protocol === 'https:' && imageUrl.startsWith('http:')) {
+                            imageUrl = imageUrl.replace('http:', 'https:');
+                        }
+                        
+                        showImagePreview(imageUrl);
+                        showNotification('Image uploaded successfully!', 'success');
+                    } else {
+                        showNotification('Upload failed: ' + data.error, 'error');
+                        document.getElementById('uploadProgress').style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('Upload error:', error);
+                    showNotification('Upload failed: ' + error.message, 'error');
+                    document.getElementById('uploadProgress').style.display = 'none';
+                }
+            }
+
+    function showImagePreview(url) {
+                // Fix URL protocol if needed
+                if (window.location.protocol === 'https:' && url.startsWith('http:')) {
+                    url = url.replace('http:', 'https:');
+                }
+                const previewImg = document.getElementById('previewImage');
+                previewImg.src = url;
+                previewImg.onerror = function() {
+                    console.error('Failed to load image:', url);
+                    this.style.display = 'none';
+                };
+                document.getElementById('imagePreview').style.display = 'block';
+            }
+
+            // Save Product
+            document.getElementById('productForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const submitText = document.getElementById('productSubmitText');
+                const submitSpinner = document.getElementById('productSubmitSpinner');
+                
+                submitText.style.display = 'none';
+                submitSpinner.style.display = 'inline-block';
+                
+                let imageUrl = '';
+                const imageMethod = document.querySelector('input[name="imageMethod"]:checked').value;
+                
+                if (imageMethod === 'url') {
+                    imageUrl = document.getElementById('productImageUrl').value;
+                } else {
+                    // Get uploaded image URL from preview
+                    const previewImg = document.getElementById('previewImage');
+                    imageUrl = previewImg.src || '';
+                }
+
+                
+const productData = {
+    name: document.getElementById('productName').value,
+    price: parseFloat(document.getElementById('productPrice').value),
+    category: document.getElementById('productCategory').value,
+    description: document.getElementById('productDescription').value,
+    image: imageUrl,
+    available: document.getElementById('productAvailable').value === 'true'
+};
+                
+// Add bonus information
+const enableBonus = document.getElementById('enableBonus').checked;
+productData.bonusInfo = {
+    hasBonusPrice: enableBonus,
+    bonusPointsRequired: enableBonus ? parseInt(document.getElementById('bonusPointsRequired').value) || 0 : 0,
+    discountPercent: enableBonus ? parseFloat(document.getElementById('discountPercent').value) || 0 : 0,
+    allowFullBonusPayment: enableBonus ? document.getElementById('allowFullBonus').checked : false
+};
+
+// Add discount information - UPDATED
+const enableDiscount = document.getElementById('enableDiscount').checked;
+if (enableDiscount) {
+    const discountPercent = parseFloat(document.getElementById('discountPercentage').value) || 0;
+    const currentPrice = parseFloat(document.getElementById('productPrice').value);
+    
+    // Текущая цена в форме это ОРИГИНАЛЬНАЯ цена
+    const originalPrice = currentPrice;
+    // Рассчитываем финальную цену
+    const finalPrice = currentPrice * (1 - discountPercent / 100);
+    
+    productData.price = finalPrice; // ✅ Сохраняем финальную цену
+    productData.discount = {
+        enabled: true,
+        percentage: discountPercent,
+        originalPrice: originalPrice // ✅ Сохраняем оригинальную
+    };
+} else {
+    productData.discount = {
+        enabled: false,
+        percentage: 0,
+        originalPrice: 0
+    };
+}
+
+// Add variations
+const hasVariations = document.getElementById('enableVariations').checked;
+productData.hasVariations = hasVariations;
+productData.variations = hasVariations ? 
+    variationsData
+        .filter(v => v.name.trim() !== '')
+        .map(v => ({
+            name: v.name.trim(),
+            priceModifier: v.priceModifier || 0,
+            available: v.available !== false
+        })) : 
+    [];
+                
+                try {
+                    const url = currentProductId ? 
+                        `${API_URL}/products/${currentProductId}` : 
+                        `${API_URL}/products`;
+                        
+                    const method = currentProductId ? 'PUT' : 'POST';
+                    
+                    const response = await fetch(url, {
+                        method: method,
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(productData)
+                    });
+                    
+                    if (response.ok) {
+                        showNotification('Product saved successfully!', 'success');
+                        closeModal();
+                        loadProducts();
+                    } else {
+                        const data = await response.json();
+                        showNotification('Failed to save product: ' + data.error, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error saving product:', error);
+                    showNotification('Error saving product', 'error');
+                } finally {
+                    submitText.style.display = 'inline';
+                    submitSpinner.style.display = 'none';
+                }
+            });
+
+            async function deleteProduct(productId) {
+                if (!confirm('Are you sure you want to delete this product?')) {
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`${API_URL}/products/${productId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        showNotification('Product deleted successfully!', 'success');
+                        loadProducts();
+                    } else {
+                        const data = await response.json();
+                        showNotification('Failed to delete product: ' + data.error, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error deleting product:', error);
+                    showNotification('Error deleting product', 'error');
+                }
+            }
+
+            // Load Coupons
+            async function loadCoupons() {
+                try {
+                    const response = await fetch(`${API_URL}/coupons`, {
+                        headers: { 'Authorization': `Bearer ${authToken}` }
+                    });
+                    
+                    if (response.ok) {
+                        const coupons = await response.json();
+                        displayCoupons(coupons);
+                    }
+                } catch (error) {
+                    console.error('Error loading coupons:', error);
+                    showNotification('Error loading coupons', 'error');
+                }
+            }
+
+            function displayCoupons(coupons) {
+                const tbody = document.querySelector('#couponsTable tbody');
+                tbody.innerHTML = coupons.map(coupon => {
+                    let valueDisplay = '';
+                    switch (coupon.type) {
+                        case 'discount_percent':
+                            valueDisplay = `${coupon.value}%`;
+                            break;
+                        case 'discount_fixed':
+                            valueDisplay = `$${coupon.value}`;
+                            break;
+                        case 'free_delivery':
+                            valueDisplay = 'Free Delivery';
+                            break;
+                        case 'free_item':
+                            valueDisplay = coupon.freeItemId ? coupon.freeItemId.name : 'Free Item';
+                            break;
+                            case 'deals':
+    loadDeals();
+    break;
+                    }
+
+                    const expiresDate = coupon.expiresAt ? new Date(coupon.expiresAt).toLocaleDateString() : 'Never';
+                    const isExpired = coupon.expiresAt && new Date(coupon.expiresAt) < new Date();
+                    const statusClass = !coupon.active || isExpired ? 'status-cancelled' : 'status-completed';
+                    const statusText = !coupon.active ? 'Inactive' : isExpired ? 'Expired' : 'Active';
+
+                    return `
+                        <tr>
+                            <td><strong>${coupon.code}</strong></td>
+                            <td><span class="coupon-type type-${coupon.type}">${coupon.type.replace('_', ' ')}</span></td>
+                            <td>${valueDisplay}</td>
+                            <td>${coupon.usedCount}/${coupon.maxUses}</td>
+                            <td><span class="status ${statusClass}">${statusText}</span></td>
+                            <td>${expiresDate}</td>
+                            <td>
+                                <button class="btn btn-warning" onclick="editCoupon('${coupon._id}')">Edit</button>
+                                <button class="btn btn-danger" onclick="deleteCoupon('${coupon._id}')">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            function showAddCoupon() {
+                currentCouponId = null;
+                document.getElementById('couponModalTitle').textContent = 'Add Coupon';
+                document.getElementById('couponForm').reset();
+                document.getElementById('couponType').value = 'discount_percent';
+                toggleCouponFields();
+                document.getElementById('couponModal').classList.add('active');
+            }
+
+            async function editCoupon(couponId) {
+                currentCouponId = couponId;
+                
+                try {
+                    const response = await fetch(`${API_URL}/coupons`, {
+                        headers: { 'Authorization': `Bearer ${authToken}` }
+                    });
+                    
+                    if (response.ok) {
+                        const coupons = await response.json();
+                        const coupon = coupons.find(c => c._id === couponId);
+                        
+                        if (coupon) {
+                            document.getElementById('couponModalTitle').textContent = 'Edit Coupon';
+                            document.getElementById('couponCode').value = coupon.code;
+                            document.getElementById('couponType').value = coupon.type;
+                            document.getElementById('couponValue').value = coupon.value;
+                            document.getElementById('couponMinOrder').value = coupon.minimumOrder;
+                            document.getElementById('couponMaxUses').value = coupon.maxUses;
+                            document.getElementById('couponActive').checked = coupon.active;
+                            
+                            if (coupon.expiresAt) {
+                                document.getElementById('couponExpires').value = new Date(coupon.expiresAt).toISOString().split('T')[0];
+                            }
+                            
+                            if (coupon.freeItemId) {
+                                document.getElementById('couponFreeItem').value = coupon.freeItemId._id || coupon.freeItemId;
+                            }
+                            
+                            toggleCouponFields();
+                            document.getElementById('couponModal').classList.add('active');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading coupon:', error);
+                    showNotification('Error loading coupon', 'error');
+                }
+            }
+
+            function toggleCouponFields() {
+                const type = document.getElementById('couponType').value;
+                const valueLabel = document.getElementById('valueLabel');
+                const valueInput = document.getElementById('couponValue');
+                const freeItemSection = document.getElementById('freeItemSection');
+
+                switch (type) {
+                    case 'discount_percent':
+                        valueLabel.textContent = 'Discount (%)';
+                        valueInput.style.display = 'block';
+                        valueInput.required = true;
+                        freeItemSection.style.display = 'none';
+                        break;
+                    case 'discount_fixed':
+                        valueLabel.textContent = 'Discount Amount ($)';
+                        valueInput.style.display = 'block';
+                        valueInput.required = true;
+                        freeItemSection.style.display = 'none';
+                        break;
+                    case 'free_delivery':
+                        valueInput.style.display = 'none';
+                        valueInput.required = false;
+                        freeItemSection.style.display = 'none';
+                        break;
+                    case 'free_item':
+                        valueInput.style.display = 'none';
+                        valueInput.required = false;
+                        freeItemSection.style.display = 'block';
+                        break;
+                }
+            }
+
+            function updateFreeItemOptions() {
+                const select = document.getElementById('couponFreeItem');
+                select.innerHTML = '<option value="">Select a product</option>';
+                allProducts.forEach(product => {
+                    select.innerHTML += `<option value="${product._id}">${product.name} - $${product.price.toFixed(2)}</option>`;
+                });
+            }
+
+            // Save Coupon
+            document.getElementById('couponForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const submitText = document.getElementById('couponSubmitText');
+                const submitSpinner = document.getElementById('couponSubmitSpinner');
+                
+                submitText.style.display = 'none';
+                submitSpinner.style.display = 'inline-block';
+                
+                const couponData = {
+                    code: document.getElementById('couponCode').value.toUpperCase(),
+                    type: document.getElementById('couponType').value,
+                    value: parseFloat(document.getElementById('couponValue').value) || 0,
+                    minimumOrder: parseFloat(document.getElementById('couponMinOrder').value) || 0,
+                    maxUses: parseInt(document.getElementById('couponMaxUses').value) || 1,
+                    active: document.getElementById('couponActive').checked
+                };
+
+                const expiresDate = document.getElementById('couponExpires').value;
+                if (expiresDate) {
+                    couponData.expiresAt = new Date(expiresDate);
+                }
+
+                if (couponData.type === 'free_item') {
+                    const freeItemId = document.getElementById('couponFreeItem').value;
+                    if (freeItemId) {
+                        couponData.freeItemId = freeItemId;
+                    }
+                }
+                
+                try {
+                    const url = currentCouponId ? 
+                        `${API_URL}/coupons/${currentCouponId}` : 
+                        `${API_URL}/coupons`;
+                        
+                    const method = currentCouponId ? 'PUT' : 'POST';
+                    
+                    const response = await fetch(url, {
+                        method: method,
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(couponData)
+                    });
+                    
+                    if (response.ok) {
+                        showNotification('Coupon saved successfully!', 'success');
+                        closeCouponModal();
+                        loadCoupons();
+                    } else {
+                        const data = await response.json();
+                        showNotification('Failed to save coupon: ' + data.error, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error saving coupon:', error);
+                    showNotification('Error saving coupon', 'error');
+                } finally {
+                    submitText.style.display = 'inline';
+                    submitSpinner.style.display = 'none';
+                }
+            });
+
+            async function deleteCoupon(couponId) {
+                if (!confirm('Are you sure you want to delete this coupon?')) {
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`${API_URL}/coupons/${couponId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        showNotification('Coupon deleted successfully!', 'success');
+                        loadCoupons();
+                    } else {
+                        const data = await response.json();
+                        showNotification('Failed to delete coupon: ' + data.error, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error deleting coupon:', error);
+                    showNotification('Error deleting coupon', 'error');
+                }
+            }
+
+            // User Management Functions
+            async function loadUsers() {
+                document.getElementById('usersList').innerHTML = '<div class="loading">Loading users...</div>';
+                try {
+                    const response = await fetch(`${API_URL}/users`, {
+                        headers: { 'Authorization': `Bearer ${authToken}` }
+                    });
+                    if (response.ok) {
+                        const result = await response.json();
+                        allUsers = result.users;
+                        displayUsers(allUsers);
+                    } else {
+                        // Mock users for demo
+                        allUsers = [
+                            {
+                                _id: '1',
+                                name: 'John Doe',
+                                email: 'john@example.com',
+                                phone: '555-0123',
+                                rewards: { bonusPoints: 125, totalSpent: 150.50, level: 'Silver' },
+                                createdAt: new Date()
+                            }
+                        ];
+                        displayUsers(allUsers);
+                    }
+                } catch (error) {
+                    console.error('Error loading users:', error);
+                    document.getElementById('usersList').innerHTML = '<div class="loading">Error loading users</div>';
+                }
+            }
+
+            function displayUsers(users) {
+                const usersList = document.getElementById('usersList');
+                
+                if (users.length === 0) {
+                    usersList.innerHTML = '<p>No users found</p>';
+                    return;
+                }
+                
+                usersList.innerHTML = users.map(user => `
+                    <div class="user-card">
+                        <div class="user-header">
+                            <div>
+                                <h4>${user.name}</h4>
+                                <p style="color: #666;">${user.email}</p>
+                            </div>
+                            <span class="rewards-badge level-${(user.rewards?.level || 'bronze').toLowerCase()}">
+                                ${user.rewards?.level || 'Bronze'} Member
+                            </span>
+                        </div>
+                        
+                        <div class="user-stats">
+                            <div class="user-stat">
+                                <strong>${user.rewards?.bonusPoints || 0}</strong>
+                                <div>Bonus Points</div>
+                            </div>
+                            <div class="user-stat">
+                                <strong>$${(user.rewards?.totalSpent || 0).toFixed(2)}</strong>
+                                <div>Total Spent</div>
+                            </div>
+                            <div class="user-stat">
+                                <strong>${user.stats?.orderCount || 0}</strong>
+                                <div>Orders</div>
+                            </div>
+                            <div class="user-stat">
+                                <strong>${user.phone || 'N/A'}</strong>
+                                <div>Phone</div>
+                            </div>
+                        </div>
+                        
+                        <div class="bonus-actions">
+                            <input type="number" class="bonus-input" id="bonus_${user._id}" min="1" placeholder="Points" value="10">
+                            <input type="text" class="bonus-input" id="reason_${user._id}" placeholder="Reason" value="Admin bonus">
+                            <button class="btn btn-bonus" onclick="addBonusToUser('${user._id}')">Add Bonus</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function searchUsers() {
+                const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+                const filteredUsers = allUsers.filter(user => 
+                    user.name.toLowerCase().includes(searchTerm) ||
+                    user.email.toLowerCase().includes(searchTerm) ||
+                    user.phone?.includes(searchTerm)
+                );
+                displayUsers(filteredUsers);
+            }
+
+            async function addBonusToUser(userId) {
+                const bonusInput = document.getElementById(`bonus_${userId}`);
+                const reasonInput = document.getElementById(`reason_${userId}`);
+                
+                const bonusPoints = parseInt(bonusInput.value);
+                const reason = reasonInput.value;
+                
+                if (!bonusPoints || bonusPoints <= 0) {
+                    showNotification('Please enter a valid bonus amount', 'error');
+                    return;
+                }
+                
+                if (!reason.trim()) {
+                    showNotification('Please enter a reason for the bonus', 'error');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`${API_URL}/users/${userId}/add-bonus`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            bonusPoints: bonusPoints,
+                            reason: reason
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        showNotification(data.message, 'bonus');
+                        bonusInput.value = 10;
+                        reasonInput.value = 'Admin bonus';
+                        loadUsers(); // Refresh the user list
+                    } else {
+                        const data = await response.json();
+                        showNotification('Failed to add bonus: ' + data.error, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error adding bonus:', error);
+                    showNotification('Error adding bonus', 'error');
+                }
+            }
+
+            // Bulk Bonus Functions
+            function showBulkBonus() {
+                document.getElementById('bulkBonusModal').classList.add('active');
+            }
+
+            function closeBulkBonusModal() {
+                document.getElementById('bulkBonusModal').classList.remove('active');
+            }
+
+            document.getElementById('bulkBonusForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const submitText = document.getElementById('bulkBonusText');
+                const submitSpinner = document.getElementById('bulkBonusSpinner');
+                
+                submitText.style.display = 'none';
+                submitSpinner.style.display = 'inline-block';
+                
+                const userType = document.getElementById('bulkUserType').value;
+                const bonusAmount = parseInt(document.getElementById('bulkBonusAmount').value);
+                const reason = document.getElementById('bulkBonusReason').value;
+                
+                try {
+                    const response = await fetch(`${API_URL}/users/bulk-bonus`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            userType: userType,
+                            bonusPoints: bonusAmount,
+                            reason: reason
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        showNotification(data.message, 'bonus');
+                        closeBulkBonusModal();
+                        loadUsers(); // Refresh users list
+                    } else {
+                        const data = await response.json();
+                        showNotification('Failed to add bulk bonus: ' + data.error, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error adding bulk bonus:', error);
+                    showNotification('Error adding bulk bonus', 'error');
+                } finally {
+                    submitText.style.display = 'inline';
+                    submitSpinner.style.display = 'none';
+                }
+            });
+
+            // ENHANCED Order Functions with Payment Details
+            async function viewOrder(orderId) {
+                currentOrderId = orderId;
+                
+                try {
+                    const order = allOrders.find(o => o._id === orderId);
+                        
+                    if (order) {
+    const displayPaymentStatus = getPaymentStatusDisplay(order);
+    let paymentInfo = `
+        <p><strong>Payment Method:</strong> ${getPaymentMethodLabel(order.payment?.method || 'unknown')}</p>
+        <p><strong>Payment Status:</strong> <span class="payment-status payment-${displayPaymentStatus}">${displayPaymentStatus}</span></p>
+    `;
+                        
+                        if (order.payment?.isOnlinePayment) {
+                            paymentInfo += `<p><strong>Online Payment:</strong> <span class="online-payment-badge">YES</span></p>`;
+                            
+                            if (order.payment.cardLast4) {
+                                paymentInfo += `<p><strong>Card:</strong> **** ${order.payment.cardLast4} (${order.payment.cardBrand || 'Unknown'})</p>`;
+                            }
+                            
+                            if (order.payment.squarePaymentData?.receiptUrl) {
+                                paymentInfo += `<p><strong>Receipt:</strong> <a href="${order.payment.squarePaymentData.receiptUrl}" target="_blank">View Square Receipt</a></p>`;
+                            }
+                            
+                            if (order.payment.paidAt) {
+                                paymentInfo += `<p><strong>Paid At:</strong> ${new Date(order.payment.paidAt).toLocaleString()}</p>`;
+                            }
+                        } else if (order.payment?.isCashOnDelivery) {
+                            paymentInfo += `<p><strong>Cash on Delivery:</strong> Yes</p>`;
+                        }
+                        
+                        const details = `
+                            <p><strong>Order Number:</strong> ${order.orderNumber}</p>
+                            <p><strong>Customer:</strong> ${order.customer.name}</p>
+                            <p><strong>Phone:</strong> ${order.customer.phone}</p>
+                            <p><strong>Email:</strong> ${order.customer.email || 'N/A'}</p>
+                            <p><strong>Order Type:</strong> ${order.isBonusOrder ? '⭐ BONUS ORDER' : order.couponUsed?.wasUsed ? '🎟 COUPON ORDER' : '📦 REGULAR ORDER'}</p>
+                            <p><strong>Delivery Type:</strong> ${order.delivery.type}</p>
+                            <p><strong>Location:</strong> ${order.delivery.type === 'classroom' ? 
+                                'Classroom ' + order.delivery.classroom : 
+                                order.delivery.location || 'Pickup'}</p>
+                            <p><strong>Special Instructions:</strong> ${order.delivery.instructions || 'None'}</p>
+                            ${order.couponUsed && order.couponUsed.wasUsed ? `<p><strong>Coupon:</strong> ${order.couponUsed.code} (${order.couponUsed.type})${order.couponUsed.freeItemName ? ' - FREE: ' + order.couponUsed.freeItemName : ''}</p>` : ''}
+                            <hr>
+                            <h3>Payment Details:</h3>
+                            ${paymentInfo}
+                            <hr>
+                            <h3>Items:</h3>
+                            <ul>
+                                ${order.items.map(item => 
+                                    `<li>${item.quantity}x ${item.name}${item.isFree ? ' (FREE from coupon)' : ''}${item.bonusUsed > 0 ? ` (${item.bonusUsed}⭐ used)` : ''} - ${(item.price * item.quantity).toFixed(2)}</li>`
+                                ).join('')}
+                            </ul>
+                            <hr>
+                            <p><strong>Subtotal:</strong> ${(order.payment?.subtotal || 0).toFixed(2)}</p>
+                            ${order.payment?.deliveryFee > 0 ? `<p><strong>Delivery Fee:</strong> ${order.payment.deliveryFee.toFixed(2)}</p>` : ''}
+                            ${order.payment?.discount > 0 ? `<p><strong>Coupon Discount:</strong> -${order.payment.discount.toFixed(2)}</p>` : ''}
+                            ${order.payment?.bonusDiscount > 0 ? `<p><strong>Bonus Discount:</strong> -${order.payment.bonusDiscount.toFixed(2)} (${order.payment.bonusPointsUsed}⭐ used)</p>` : ''}
+                            <p><strong>Total:</strong> ${(order.payment?.total || 0).toFixed(2)}</p>
+                            <p><strong>Current Status:</strong> <span class="status status-${order.status}">${order.status}</span></p>
+                            ${order.payment?.bonusPointsEarned > 0 ? `<p><strong>Bonus Points Earned:</strong> ${order.payment.bonusPointsEarned} ⭐</p>` : ''}
+                        `;
+                        
+                        document.getElementById('orderDetails').innerHTML = details;
+                        document.getElementById('orderStatus').value = order.status;
+                        document.getElementById('orderModal').classList.add('active');
+                    }
+                } catch (error) {
+                    console.error('Error viewing order:', error);
+                    showNotification('Error loading order details', 'error');
+                }
+            }
+
+            // Update Order Status
+            async function updateOrderStatus() {
+                const newStatus = document.getElementById('orderStatus').value;
+                const statusUpdateText = document.getElementById('statusUpdateText');
+                const statusUpdateSpinner = document.getElementById('statusUpdateSpinner');
+                
+                statusUpdateText.style.display = 'none';
+                statusUpdateSpinner.style.display = 'inline-block';
+                
+                try {
+                    const response = await fetch(`${API_URL}/orders/${currentOrderId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ status: newStatus })
+                    });
+                    
+                    if (response.ok) {
+                        showNotification('Order status updated successfully!', 'success');
+                        closeOrderModal();
+                        loadOrders();
+                        loadDashboardData();
+                    } else {
+                        showNotification('Failed to update order status', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error updating order:', error);
+                    showNotification('Error updating order status', 'error');
+                } finally {
+                    statusUpdateText.style.display = 'inline';
+                    statusUpdateSpinner.style.display = 'none';
+                }
+            }
+
+            // ENHANCED Cancel Order with Refund Processing
+    async function cancelOrder(orderId, paymentId, amount) {
+        if (!confirm('Are you sure you want to cancel this order and process a refund?')) return;
+    
+        try {
+            // Используем специальный endpoint для отмены с возвратом
+            const response = await fetch(`${API_URL}/orders/${orderId}/cancel-admin`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                if (data.refundFailed) {
+                    if (data.contactSupport) {
+                        showNotification('Order cancelled, but refund failed. Please contact support.', 'warning');
+                    } else {
+                        showNotification('Order cancelled, refund is being processed separately.', 'warning');
+                    }
+                } else if (data.refundId) {
+                    showNotification(`Order cancelled and $${data.refundAmount} refund processed!`, 'success');
+                } else {
+                    showNotification('Order cancelled successfully!', 'success');
+                }
+                
+                // Обновляем данные
+                loadOrders();
+                loadDashboardData();
+                
+                // Закрываем модальное окно если оно открыто
+                closeOrderModal();
+            } else {
+                showNotification(data.error || 'Failed to cancel order', 'error');
+            }
+        } catch (error) {
+            console.error('Order cancellation error:', error);
+            showNotification('Error: ' + error.message, 'error');
+        }
+    }
+            // Load Statistics
+            async function loadStatistics() {
+                try {
+                    const response = await fetch(`${API_URL}/stats`, {
+                        headers: { 'Authorization': `Bearer ${authToken}` }
+                    });
+                    
+                    if (response.ok) {
+                        const stats = await response.json();
+                        
+                        document.getElementById('weekRevenue').textContent = (stats.weekRevenue || 0).toFixed(2);
+                        document.getElementById('monthRevenue').textContent = (stats.monthRevenue || 0).toFixed(2);
+                        document.getElementById('avgOrder').textContent = ((stats.totalRevenue || 0) / (stats.totalOrders || 1)).toFixed(2);
+                        document.getElementById('totalCustomers').textContent = stats.totalCustomers || 0;
+                        
+                        const tbody = document.querySelector('#popularProductsTable tbody');
+                        tbody.innerHTML = (stats.popularProducts || []).map(product => `
+                            <tr>
+                                <td>${product._id}</td>
+                                <td>${product.count}</td>
+                                <td>${(product.revenue || 0).toFixed(2)}</td>
+                            </tr>
+                        `).join('');
+                    }
+                } catch (error) {
+                    console.error('Error loading statistics:', error);
+                    showNotification('Error loading statistics', 'error');
+                }
+            }
+
+            // Modal Functions
+            function closeModal() {
+                document.getElementById('productModal').classList.remove('active');
+            }
+
+            function closeCouponModal() {
+                document.getElementById('couponModal').classList.remove('active');
+            }
+
+            function closeOrderModal() {
+                document.getElementById('orderModal').classList.remove('active');
+            }
+
+            // Utility Functions
+            function logout() {
+                localStorage.removeItem('staffToken');
+                authToken = null;
+                currentUser = null;
+                location.reload();
+            }
+
+            function refreshData() {
+                const activeSection = document.querySelector('.content-section.active').id;
+                showSection(activeSection);
+                showNotification('Data refreshed', 'success');
+            }
+
+            // Drag and Drop for file upload
+            document.addEventListener('DOMContentLoaded', () => {
+                const fileUploadArea = document.querySelector('.file-upload');
+                if (fileUploadArea) {
+                    fileUploadArea.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        fileUploadArea.classList.add('dragover');
+                    });
+
+                    fileUploadArea.addEventListener('dragleave', () => {
+                        fileUploadArea.classList.remove('dragover');
+                    });
+
+                    fileUploadArea.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        fileUploadArea.classList.remove('dragover');
+                        const files = e.dataTransfer.files;
+                        if (files.length > 0) {
+                            document.getElementById('imageFile').files = files;
+                            handleImageUpload(document.getElementById('imageFile'));
+                        }
+                    });
+                }
+            });
+
+            // Initialize
+            if (authToken) {
+                loadDashboardData();
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+    if (authToken) {
+        loadDeals();
+    }
+});
+
+            // ============================================
+    // --- Special Deals Management ---
+    let allDeals = [];
+    let currentDealId = null;
+    let selectedDealProducts = [];
+
+async function loadDeals() {
+    try {
+        console.log('Loading deals...');
+        const response = await fetch(`${API_URL}/deals/admin`, {  // ✅ ДОБАВИТЬ /admin
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        if (response.ok) {
+            allDeals = await response.json();
+            console.log('Deals loaded:', allDeals.length);
+            displayDeals(allDeals);
+        } else {
+            console.error('Failed to load deals, status:', response.status);
+            const tbody = document.querySelector('#dealsTable tbody');
+            tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:#e74c3c;">Failed to load deals. Click refresh to try again.</td></tr>';
+        }
+    } catch (error) {
+        console.error('Error loading deals:', error);
+        const tbody = document.querySelector('#dealsTable tbody');
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:#e74c3c;">Error loading deals. Please check connection and try again.</td></tr>';
+    }
+}
+
+function displayDeals(deals) {
+    const tbody = document.querySelector('#dealsTable tbody');
+    
+    if (!deals || deals.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">No deals found. Click "Add Deal" to create one.</td></tr>';
+        return;
+    }
+    
+    console.log('Displaying deals:', deals);
+    
+    tbody.innerHTML = deals.map(deal => {
+        const imageContent = deal.image ? 
+            `<img src="${deal.image}" alt="${deal.name}" style="width:50px;height:50px;object-fit:cover;border-radius:5px;">` : 
+            '<div style="font-size:10px;">No Image</div>';
+        
+        const productsList = deal.products.map(p => 
+            `${p.quantity}x ${p.productId?.name || 'Unknown'}`
+        ).join(', ');
+        
+        // Enhanced status check
+        const now = new Date();
+        let statusText = '';
+        let statusClass = '';
+        
+        if (!deal.active) {
+            statusText = 'Disabled';
+            statusClass = 'status-cancelled';
+        } else if (deal.startDate && new Date(deal.startDate) > now) {
+            statusText = 'Scheduled';
+            statusClass = 'status-pending';
+        } else if (deal.endDate && new Date(deal.endDate) < now) {
+            statusText = 'Expired';
+            statusClass = 'status-cancelled';
+        } else if (deal.maxRedemptions > 0 && deal.currentRedemptions >= deal.maxRedemptions) {
+            statusText = 'Sold Out';
+            statusClass = 'status-cancelled';
+        } else {
+            statusText = 'Active';
+            statusClass = 'status-completed';
+        }
+        
+        // Format dates
+        const startDate = deal.startDate ? new Date(deal.startDate).toLocaleDateString() : 'N/A';
+        const endDate = deal.endDate ? new Date(deal.endDate).toLocaleDateString() : 'N/A';
+        
+        return `
+            <tr>
+                <td>${imageContent}</td>
+                <td><strong>${deal.name}</strong></td>
+                <td style="font-size:12px;">${productsList}</td>
+                <td>$${deal.originalPrice?.toFixed(2) || '0.00'}</td>
+                <td><strong style="color:#27ae60;">$${deal.dealPrice.toFixed(2)}</strong></td>
+                <td><span style="color:#27ae60;font-weight:bold;">$${deal.savings?.toFixed(2) || '0.00'} (${deal.savingsPercent || 0}%)</span></td>
+                <td>
+                    <span class="status ${statusClass}">
+                        ${statusText}
+                    </span>
+                </td>
+                <td><strong>${deal.currentRedemptions || 0}</strong>${deal.maxRedemptions > 0 ? `/${deal.maxRedemptions}` : ' / ∞'}</td>
+                <td style="font-size:11px;">
+                    <div><strong>Start:</strong> ${startDate}</div>
+                    <div><strong>End:</strong> ${endDate}</div>
+                </td>
+                <td>
+                    <button class="btn btn-warning" onclick="editDeal('${deal._id}')">Edit</button>
+                    <button class="btn btn-danger" onclick="deleteDeal('${deal._id}')">Delete</button>
+                    ${!deal.active ? 
+                        `<button class="btn btn-success" onclick="toggleDealStatus('${deal._id}', true)">Enable</button>` :
+                        `<button class="btn btn-secondary" onclick="toggleDealStatus('${deal._id}', false)">Disable</button>`
+                    }
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+    function showAddDeal() {
+        currentDealId = null;
+        selectedDealProducts = [];
+        document.getElementById('dealModalTitle').textContent = 'Add Special Deal';
+        document.getElementById('dealForm').reset();
+        document.getElementById('dealImagePreview').style.display = 'none';
+        document.getElementById('selectedDealProducts').innerHTML = '<p style="color: #999; text-align: center;">No products selected</p>';
+        document.getElementById('dealPriceCalculation').style.display = 'none';
+        
+        loadDealProductsList();
+        document.getElementById('dealModal').classList.add('active');
+    }
+
+    async function loadDealProductsList() {
+        const container = document.getElementById('dealProductsList');
+        container.innerHTML = '<div class="loading"></div>';
+        
+        try {
+            const response = await fetch(`${API_URL}/products`);
+            if (response.ok) {
+                const products = await response.json();
+                const availableProducts = products.filter(p => p.available);
+                
+                container.innerHTML = availableProducts.map(product => `
+                    <div style="display:flex; align-items:center; gap:10px; padding:8px; border-bottom:1px solid #eee;">
+                        <input type="checkbox" id="dealProduct_${product._id}" 
+                            onchange="toggleDealProduct('${product._id}', '${product.name.replace(/'/g, "\\'")}', ${product.price})">
+                        <label for="dealProduct_${product._id}" style="flex:1; margin:0;">
+                            ${product.name} - $${product.price.toFixed(2)}
+                        </label>
+                        <input type="number" id="dealQty_${product._id}" min="1" value="1" 
+                            style="width:60px; padding:4px;" disabled
+                            onchange="updateDealProductQuantity('${product._id}')">
+                    </div>
+                `).join('');
+            }
+        } catch (error) {
+            container.innerHTML = '<p style="color:#e74c3c;">Error loading products</p>';
+        }
+    }
+
+    function toggleDealProduct(productId, productName, price) {
+        const checkbox = document.getElementById(`dealProduct_${productId}`);
+        const qtyInput = document.getElementById(`dealQty_${productId}`);
+        
+        if (checkbox.checked) {
+            qtyInput.disabled = false;
+            const quantity = parseInt(qtyInput.value) || 1;
+            selectedDealProducts.push({ productId, productName, price, quantity });
+        } else {
+            qtyInput.disabled = true;
+            selectedDealProducts = selectedDealProducts.filter(p => p.productId !== productId);
+        }
+        
+        updateSelectedDealProducts();
+    }
+
+    function updateDealProductQuantity(productId) {
+        const qtyInput = document.getElementById(`dealQty_${productId}`);
+        const quantity = parseInt(qtyInput.value) || 1;
+        
+        const product = selectedDealProducts.find(p => p.productId === productId);
+        if (product) {
+            product.quantity = quantity;
+            updateSelectedDealProducts();
+        }
+    }
+
+    function updateSelectedDealProducts() {
+        const container = document.getElementById('selectedDealProducts');
+        const calcContainer = document.getElementById('dealPriceCalculation');
+        
+        if (selectedDealProducts.length === 0) {
+            container.innerHTML = '<p style="color: #999; text-align: center;">No products selected</p>';
+            calcContainer.style.display = 'none';
+            return;
+        }
+        
+        container.innerHTML = selectedDealProducts.map(p => `
+            <div style="display:flex; justify-content:space-between; padding:5px; background:#f8f9fa; margin:5px 0; border-radius:5px;">
+                <span>${p.quantity}x ${p.productName}</span>
+                <span>$${(p.price * p.quantity).toFixed(2)}</span>
+            </div>
+        `).join('');
+        
+        const originalPrice = selectedDealProducts.reduce((sum, p) => sum + (p.price * p.quantity), 0);
+        const dealPrice = parseFloat(document.getElementById('dealPrice').value) || 0;
+        const savings = originalPrice - dealPrice;
+        const savingsPercent = originalPrice > 0 ? ((savings / originalPrice) * 100).toFixed(0) : 0;
+        
+        document.getElementById('dealOriginalPrice').textContent = `$${originalPrice.toFixed(2)}`;
+        document.getElementById('dealPriceDisplay').textContent = `$${dealPrice.toFixed(2)}`;
+        document.getElementById('dealSavings').textContent = `$${savings.toFixed(2)} (${savingsPercent}%)`;
+        
+        calcContainer.style.display = 'block';
+    }
+
+    document.getElementById('dealPrice').addEventListener('input', updateSelectedDealProducts);
+
+    document.getElementById('dealForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        if (selectedDealProducts.length === 0) {
+            showNotification('Please select at least one product', 'error');
+            return;
+        }
+        
+        const submitText = document.getElementById('dealSubmitText');
+        const submitSpinner = document.getElementById('dealSubmitSpinner');
+        
+        submitText.style.display = 'none';
+        submitSpinner.style.display = 'inline-block';
+        
+        const imageMethod = document.querySelector('input[name="dealImageMethod"]:checked').value;
+        let imageUrl = '';
+        
+        if (imageMethod === 'url') {
+            imageUrl = document.getElementById('dealImageUrl').value;
+        } else {
+            const previewImg = document.getElementById('dealPreviewImage');
+            imageUrl = previewImg.src || '';
+        }
+        
+        const dealData = {
+            name: document.getElementById('dealName').value,
+            description: document.getElementById('dealDescription').value,
+            image: imageUrl,
+            products: selectedDealProducts.map(p => ({
+                productId: p.productId,
+                quantity: p.quantity
+            })),
+            dealPrice: parseFloat(document.getElementById('dealPrice').value),
+            startDate: document.getElementById('dealStartDate').value || null,
+            endDate: document.getElementById('dealEndDate').value || null,
+            maxRedemptions: parseInt(document.getElementById('dealMaxRedemptions').value) || 0
+        };
+        
+        try {
+            const url = currentDealId ? 
+                `${API_URL}/deals/${currentDealId}` : 
+                `${API_URL}/deals`;
+            const method = currentDealId ? 'PUT' : 'POST';
+            
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    'Authorization': `Bearer ${authToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(dealData)
+            });
+            
+            if (response.ok) {
+                showNotification('Deal saved successfully!', 'success');
+                closeDealModal();
+                loadDeals();
+            } else {
+                const data = await response.json();
+                showNotification('Failed to save deal: ' + data.error, 'error');
+            }
+        } catch (error) {
+            showNotification('Error saving deal', 'error');
+        } finally {
+            submitText.style.display = 'inline';
+            submitSpinner.style.display = 'none';
+        }
+    });
+
+    async function editDeal(dealId) {
+        currentDealId = dealId;
+        const deal = allDeals.find(d => d._id === dealId);
+        
+        if (!deal) return;
+        
+        document.getElementById('dealModalTitle').textContent = 'Edit Special Deal';
+        document.getElementById('dealName').value = deal.name;
+        document.getElementById('dealDescription').value = deal.description || '';
+        document.getElementById('dealPrice').value = deal.dealPrice;
+        document.getElementById('dealStartDate').value = deal.startDate ? deal.startDate.split('T')[0] : '';
+        document.getElementById('dealEndDate').value = deal.endDate ? deal.endDate.split('T')[0] : '';
+        document.getElementById('dealMaxRedemptions').value = deal.maxRedemptions || 0;
+        
+        if (deal.image) {
+            document.getElementById('dealImageUrl').value = deal.image;
+            document.getElementById('dealPreviewImage').src = deal.image;
+            document.getElementById('dealImagePreview').style.display = 'block';
+        }
+        
+        selectedDealProducts = deal.products.map(p => ({
+            productId: p.productId._id,
+            productName: p.productId.name,
+            price: p.productId.price,
+            quantity: p.quantity
+        }));
+        
+        await loadDealProductsList();
+        
+        selectedDealProducts.forEach(p => {
+            const checkbox = document.getElementById(`dealProduct_${p.productId}`);
+            const qtyInput = document.getElementById(`dealQty_${p.productId}`);
+            if (checkbox) {
+                checkbox.checked = true;
+                qtyInput.disabled = false;
+                qtyInput.value = p.quantity;
+            }
+        });
+        
+        updateSelectedDealProducts();
+        document.getElementById('dealModal').classList.add('active');
+    }
+
+    async function deleteDeal(dealId) {
+        if (!confirm('Are you sure you want to delete this deal?')) return;
+        
+        try {
+            const response = await fetch(`${API_URL}/deals/${dealId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            
+            if (response.ok) {
+                showNotification('Deal deleted successfully!', 'success');
+                loadDeals();
+            } else {
+                const data = await response.json();
+                showNotification('Failed to delete deal: ' + data.error, 'error');
+            }
+        } catch (error) {
+            showNotification('Error deleting deal', 'error');
+        }
+    }
+
+    function closeDealModal() {
+        document.getElementById('dealModal').classList.remove('active');
+    }
+
+    document.querySelectorAll('input[name="dealImageMethod"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            const method = document.querySelector('input[name="dealImageMethod"]:checked').value;
+            document.getElementById('dealUrlUpload').style.display = method === 'url' ? 'block' : 'none';
+            document.getElementById('dealFileUpload').style.display = method === 'file' ? 'block' : 'none';
+        });
+    });
+
+    async function toggleDealStatus(dealId, newStatus) {
+    try {
+        const response = await fetch(`${API_URL}/deals/${dealId}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ active: newStatus })
+        });
+        
+        if (response.ok) {
+            showNotification(`Deal ${newStatus ? 'enabled' : 'disabled'} successfully!`, 'success');
+            loadDeals();
+        } else {
+            const data = await response.json();
+            showNotification('Failed to update deal: ' + data.error, 'error');
+        }
+    } catch (error) {
+        showNotification('Error updating deal', 'error');
+    }
+}
+
+    async function handleDealImageUpload(input) {
+        const file = input.files[0];
+        if (!file) return;
+        
+        const formData = new FormData();
+        formData.append('image', file);
+        
+        try {
+            const response = await fetch(`${API_URL}/upload`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${authToken}` },
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                document.getElementById('dealPreviewImage').src = data.url;
+                document.getElementById('dealImagePreview').style.display = 'block';
+                showNotification('Image uploaded successfully!', 'success');
+            }
+        } catch (error) {
+            showNotification('Upload failed', 'error');
+        }
+    }
+
+
+
+function toggleDiscountControls() {
+    const enabled = document.getElementById('enableDiscount').checked;
+    const controls = document.getElementById('discountControls');
+    
+    if (enabled) {
+        controls.style.display = 'grid';
+        calculateDiscountPrice();
+    } else {
+        controls.style.display = 'none';
+    }
+}
+
+function calculateDiscountPrice() {
+    const originalPrice = parseFloat(document.getElementById('productPrice').value) || 0;
+    const discountPercent = parseFloat(document.getElementById('discountPercentage').value) || 0;
+    
+    if (discountPercent > 0 && originalPrice > 0) {
+        // Рассчитываем ФИНАЛЬНУЮ цену после скидки
+        const finalPrice = originalPrice * (1 - discountPercent / 100);
+        document.getElementById('originalPrice').value = originalPrice.toFixed(2);
+        
+        // Показываем финальную цену
+        const pricePreview = document.getElementById('finalPricePreview');
+        if (pricePreview) {
+            pricePreview.textContent = `Final price after discount: $${finalPrice.toFixed(2)}`;
+            pricePreview.style.display = 'block';
+        }
+    } else {
+        document.getElementById('originalPrice').value = originalPrice.toFixed(2);
+        const pricePreview = document.getElementById('finalPricePreview');
+        if (pricePreview) {
+            pricePreview.style.display = 'none';
+        }
+    }
+}
+
+
+
+        </script>
+
+        <!-- Support Button -->
+
+    </body>
+    </html>
